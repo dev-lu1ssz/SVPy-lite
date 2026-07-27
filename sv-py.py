@@ -11,7 +11,7 @@ try:
     cursor = conexao.cursor()
     
     table_departamento = '''
-        CREATE TABLE DEPARTAMENTO IF NOT EXISTS (
+        CREATE TABLE IF NOT EXISTS DEPARTAMENTO(
             ID DEPARTAMENTO INTEGER PRIMARY KEY NOT NULL,
             NOME_DEPARTAMENTO VARCHAR(25) NOT NULL
         );
@@ -33,7 +33,7 @@ try:
             ENDERECO VARCHAR(200) NOT NULL
         );
     '''
-    table_funcionario = ''''
+    table_funcionario = '''
         CREATE TABLE IF NOT EXISTS FUNCIONARIO(
             ID_FUNCIONARIO INTEGER PRIMARY KEY NOT NULL,
             ID_DEPARTAMENTO INTEGER NOT NULL,
@@ -48,7 +48,7 @@ try:
             FOREIGN KEY (ID_DEPARTAMENTO) REFERENCES DEPARTAMENTO(ID_DEPARTAMENTO)
         );
     '''
-    table_veiculo = ''''
+    table_veiculo = '''
         CREATE TABLE IF NOT EXISTS VEICULO(
             ID_VEICULO INTEGER PRIMARY KEY NOT NULL,
             ID_CLIENTE INTEGER NOT NULL,
@@ -59,7 +59,7 @@ try:
             FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
         );
     '''
-    table_produto = ''''
+    table_produto = '''
         CREATE TABLE IF NOT EXISTS PRODUTO(
             ID_PRODUTO INTEGER PRIMARY KEY NOT NULL,
             ID_FORNECEDOR INTEGER NOT NULL,
@@ -87,7 +87,183 @@ try:
             FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
         );
     '''
+    table_vendas = '''
+        CREATE TABLE IF NOT EXISTS VENDAS(
+            ID_VENDA INTEGER PRIMARY KEY NOT NULL,
+            ID_VEICULO INTEGER NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_FUNCIONARIO INTEGER NOT NULL,
+            DATA_VENDA DATE NOT NULL,
+            TIPO_VENDA VARCHAR(10) NOT NULL,
+            FORMA_PAGAMENTO VARCHAR(20) NOT NULL,
+            STATUS_VENDA VARCHAR(20) NOT NULL,
+            FOREIGN KEY (ID_VEICULO) REFERENCES VEICULO(ID_VEICULO),
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+        );
+    '''
+    table_pagamento = '''
+        CREATE TABLE IF NOT EXISTS PAGAMENTO(
+            ID_PAGAMENTO INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_OS INTEGER NOT NULL,
+            ID_PRODUTO INTEGER NOT NULL,
+            METODO_PAGAMENTO VARCHAR(30),
+            PARCELAS INTEGER NULL,
+            DATA_PAGAMENTO DATE NOT NULL,
+            VALOR_PAGAMENTO REAL NOT NULL,
+            FORMA_PAGAMENTO VARCHAR(20) NOT NULL,
+            STATUS_PAGAMENTO VARCHAR(20) NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
+            FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
+        );
+    '''
+    table_feedback = '''
+        CREATE TABLE IF NOT EXISTS FEEDBACK(
+            ID_FEEDBACK INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            AVALIACAO INTEGER NOT NULL,
+            DESCRICAO TEXT,
+            DATA_FEEDBACK DATE NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
+        );
+    '''
+    table_financiamento = '''
+        CREATE TABLE IF NOT EXISTS FINANCIAMENTO(
+            ID_FINANCIAMENTO INTEGER PRIMARY KEY NOT NULL,
+            ID_VENDA INTEGER NOT NULL,
+            VALOR_FINANCIADO REAL NOT NULL,
+            TAXA_JUROS FLOAT NOT NULL,
+            NUM_PARCELAS INTEGER NULL,
+            DATA_PRIMEIRA_PARCELA DATE NULL,
+            FOREIGN KEY (ID_VENDA) REFERENCES VENDAS(ID_VENDA)
+        );
+    '''
+    table_seguro_garantia = '''
+        CREATE TABLE IF NOT EXISTS SEGURO_GARANTIA(
+            ID_SEGURO INTEGER PRIMARY KEY NOT NULL,
+            ID_VENDA INTEGER NOT NULL,
+            TIPO_SEGURO VARCHAR(25) NOT NULL,
+            VALOR_SEGURO REAL NOT NULL,
+            GARANTIA_EXT_MES INTEGER NULL,
+            FOREIGN KEY (ID_VENDA) REFERENCES VENDAS(ID_VENDA)
+        );
+    '''
+    table_conta_receber = '''
+        CREATE TABLE IF NOT EXISTS CONTA_RECEBER(
+            ID_CONTA_RECEBER INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_VENDA INTEGER NOT NULL,
+            VALOR_RECEBER REAL NOT NULL,
+            DATA_EMISSAO_RECEBER DATE NOT NULL,
+            DATA_VENCIMENTO_RECEBER DATE NOT NULL,
+            STATUS_RECEBER VARCHAR(20) NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_VENDA) REFERENCES VENDAS(ID_VENDA)
+        );
+    '''
+    table_conta_pagar = '''
+        CREATE TABLE IF NOT EXISTS CONTA_PAGAR(
+            ID_CONTA_PAGAR INTEGER PRIMARY KEY NOT NULL,
+            ID_FORNECEDOR INTEGER NOT NULL,
+            ID_PRODUTO INTEGER NOT NULL,
+            VALOR_PAGAR REAL NOT NULL,
+            DATA_EMISSAO_PAGAR DATE NOT NULL,
+            DATA_VENCIMENTO_PAGAR DATE NOT NULL,
+            STATUS_PAGAR VARCHAR(20) NOT NULL,
+            FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR),
+            FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
+        );
+    '''
+    table_movimento_estoque = '''
+        CREATE TABLE IF NOT EXISTS MOVIMENTO_ESTOQUE(
+            ID_MOVIMENTO INTEGER PRIMARY KEY NOT NULL,
+            ID_PRODUTO INTEGER NOT NULL,
+            ID_OS INTEGER NOT NULL,
+            ID_FORNECEDOR INTEGER NOT NULL,
+            QUANTIDADE INTEGER NOT NULL,
+            TIPO_MOVIMENTO VARCHAR(10) NOT NULL,
+            DATA_MOVIMENTO DATE NOT NULL,
+            FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO),
+            FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
+            FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR)
+        );    
+    '''
+    table_atendimento_= '''
+        CREATE TABLE IF NOT EXISTS ATENDIMENTO(
+            ID_ATENDIMENTO INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_FUNCIONARIO INTEGER NOT NULL,
+            DATA_ATENDIMENTO DATE NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+        );
+    '''
+    table_os_tecnico = '''
+        CREATE TABLE IF NOT EXISTS OS_TECNICO(
+            ID_OS_TECNICO INTEGER PRIMARY KEY NOT NULL,
+            ID_OS INTEGER NOT NULL,
+            ID_FUNCIONARIO INTEGER NOT NULL,
+            DATA_ATRIBUICAO DATE NOT NULL,
+            FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
+            FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+        );
+    '''
+    table_garantia_os = '''
+        CREATE TABLE IF NOT EXISTS GARANTIA_OS(
+            ID_GARANTIA INTEGER PRIMARY KEY NOT NULL,
+            ID_OS INTEGER NOT NULL,
+            DATA_GARANTIA DATE NOT NULL,
+            PERIODO_MESES INTEGER NOT NULL,
+            STATUS_GARANTIA VARCHAR(20) NOT NULL,
+            FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS)
+        );
+    '''
+    table_reclamacao = '''
+        CREATE TABLE IF NOT EXISTS RECLAMACAO(
+            ID_RECLAMACAO INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_GARANTIA INTEGER NOT NULL,
+            DATA_RECLAMACAO DATE NOT NULL,
+            DESCRICAO TEXT NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_GARANTIA) REFERENCES GARANTIA_OS(ID_GARANTIA)
+        );
+    '''
+    table_contrato = '''
+        CREATE TABLE IF NOT EXISTS CONTRATO(
+            ID_CONTRATO INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_FUNCIONARIO INTEGER NOT NULL,
+            TIPO_CONTATO VARCHAR(20) NOT NULL,
+            DATA_INICIO DATE NOT NULL,
+            DATA_FIM DATE NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+        );    
+    '''
+    table_agenciamento_veiculo = '''
+        CREATE TABLE IF NOT EXISTS AGENCIAMENTO_VEICULO(
+            ID_AGENCIAMENTO INTEGER PRIMARY KEY NOT NULL,
+            ID_CLIENTE INTEGER NOT NULL,
+            ID_VEICULO INTEGER NOT NULL,
+            DATA_AGENCIAMENTO DATE NOT NULL,
+            VALOR_AGENCIAMENTO REAL NOT NULL,
+            PRAZO_DIAS INTEGER NOT NULL,
+            COMISSAO_PROC FLOAT NOT NULL,
+            STATUS_AGENCIAMENTO VARCHAR(20) NOT NULL,
+            FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+            FOREIGN KEY (ID_VEICULO) REFERENCES VEICULO(ID_VEICULO)
+        );
+    '''
     
+    all_tables = table_departamento + table_cliente + table_fornecedor + table_funcionario + table_veiculo + table_produto + table_ordem_servico + table_vendas + table_pagamento + table_feedback + table_financiamento + table_seguro_garantia + table_conta_receber + table_conta_pagar + table_movimento_estoque + table_atendimento_ + table_os_tecnico + table_garantia_os + table_reclamacao + table_contrato + table_agenciamento_veiculo
+    cursor.executescript(all_tables)
+    
+    conexao.commit()
+    print('Todas as tabelas foram criadas com sucesso!')
+
 except sqlite3.DatabaseError as err:
     print('Erro no banco de dado:', err)
 
