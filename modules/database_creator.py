@@ -109,7 +109,10 @@ def main():
                 FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
                 FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
             );
-        ''' # Número máximo de parcelas é 20x
+        ''' # Número máximo de parcelas é 20x. 
+            # Referencia - String que mostra exatamente o que ele comprou, se for produto então QUAL produto ele comprou, se for ordem de serviço então apenas escrever "Reparo"
+            # ID_OS e ID_PRODUTO nulos pois se não realizou reparo então comprou produto, e vice versa
+
         table_feedback = '''
             CREATE TABLE IF NOT EXISTS FEEDBACK(
                 ID_FEEDBACK INTEGER PRIMARY KEY NOT NULL,
