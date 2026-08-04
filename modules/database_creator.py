@@ -73,7 +73,7 @@ def main():
                 CATEGORIA VARCHAR(25) NOT NULL,
                 QUANTIDADE INTEGER NOT NULL,
                 PRECO_UNITARIO REAL NOT NULL,
-                PRECO_TOTAL REAL TOTAL_PRODUTOS AS (QUANTIDADE * PRECO_UNITARIO) STORED,
+                PRECO_TOTAL REAL GENERATED ALWAYS AS (QUANTIDADE * PRECO_UNITARIO) STORED,
                 VALIDADE DATE NULL,
                 FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR)
             );
@@ -85,13 +85,14 @@ def main():
                 ID_CLIENTE INTEGER NOT NULL,
                 DATA_INICIO DATE NOT NULL,
                 DATA_CONCLUSAO DATE NULL,
+                TEMPO_TOTAL_REPARO INTEGER GENERATED ALWAYS AS (DATA_CONCLUSAO - DATA_INICIO) STORED,
                 AGENDAMENTO DATE NULL,
                 VALOR_TOTAL REAL NOT NULL,
                 DESC_REPARO VARCHAR(100) NOT NULL,
                 FOREIGN KEY (ID_VEICULO) REFERENCES VEICULO(ID_VEICULO),
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
             );
-        '''
+        ''' # Tempo total vai retornar a quantidade em dias
         table_pagamento = '''
             CREATE TABLE IF NOT EXISTS PAGAMENTO(
                 ID_PAGAMENTO INTEGER PRIMARY KEY NOT NULL,
@@ -108,7 +109,7 @@ def main():
                 FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
                 FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
             );
-        '''
+        ''' # Número máximo de parcelas é 20x
         table_feedback = '''
             CREATE TABLE IF NOT EXISTS FEEDBACK(
                 ID_FEEDBACK INTEGER PRIMARY KEY NOT NULL,
@@ -135,7 +136,7 @@ def main():
                 STATUS VARCHAR(15) NOT NULL,
                 FOREIGN KEY (ORIGEM_RECEITA_ID) REFERENCES ORIGEM_RECEITA(ORIGEM_RECEITA_ID)
             );
-        '''
+        ''' # STATUS - Pendente/Recebido
         table_origem_da_despesa = '''
             CREATE TABLE IF NOT EXISTS ORIGEM_DESPESA(
                 ORIGEM_DESPESA_ID INTEGER PRIMARY KEY NOT NULL,
@@ -152,7 +153,7 @@ def main():
                 STATUS VARCHAR(20) NOT NULL,
                 FOREIGN KEY (ORIGEM_DESPESA_ID) REFERENCES ORIGEM_DESPESA(ORIGEM_DESPESA_ID)
             );
-        '''
+        ''' # STATUS - Pendente/Pago
         table_atendimento_= '''
             CREATE TABLE IF NOT EXISTS ATENDIMENTO(
                 ID_ATENDIMENTO INTEGER PRIMARY KEY NOT NULL,
