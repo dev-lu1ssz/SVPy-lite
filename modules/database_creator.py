@@ -21,8 +21,8 @@ def main():
                 ID_CLIENTE INTEGER PRIMARY KEY NOT NULL,
                 NOME_CLIENTE VARCHAR(30) NOT NULL,
                 ENDERECO VARCHAR(200) NOT NULL,
-                TELEFONE BIGINT NOT NULL,
-                CPF_CLIENTE BIGINT UNIQUE
+                TELEFONE INTEGER NOT NULL,
+                CPF_CLIENTE INTEGER UNIQUE
             );
         '''
         table_fornecedor = '''
@@ -30,7 +30,7 @@ def main():
                 ID_FORNECEDOR INTEGER PRIMARY KEY NOT NULL,
                 NOME_FORNECEDOR VARCHAR(30) NOT NULL,
                 CNPJ VARCHAR(14) NOT NULL,
-                TELEFONE BIGINT NOT NULL,
+                TELEFONE INTEGER NOT NULL,
                 ENDERECO VARCHAR(200) NOT NULL
             );
         '''
@@ -72,11 +72,12 @@ def main():
                 NOME_PRODUTO VARCHAR(25) NOT NULL,
                 CATEGORIA VARCHAR(25) NOT NULL,
                 QUANTIDADE INTEGER NOT NULL,
-                PRECO REAL NOT NULL,
+                PRECO_UNITARIO REAL NOT NULL,
+                PRECO_TOTAL REAL TOTAL_PRODUTOS AS (QUANTIDADE * PRECO_UNITARIO) STORED,
                 VALIDADE DATE NULL,
                 FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR)
             );
-        ''' # COLUNA 'VALIDADE' SERÁ UM CAMPO CALCULADO
+        '''
         table_ordem_servico = '''
             CREATE TABLE IF NOT EXISTS ORDEM_SERVICO(
                 ID_OS INTEGER PRIMARY KEY NOT NULL,
@@ -177,7 +178,7 @@ def main():
             );
         '''
         
-        all_tables = table_departamento + table_cliente + table_fornecedor + \
+        all_tables = table_departamento + table_origem_da_despesa + table_origem_da_receita + table_cliente + table_fornecedor + \
         table_especialidade + table_funcionario + table_veiculo + table_produto + table_ordem_servico + \
         table_pagamento + table_feedback + table_conta_receber + table_conta_pagar + \
         table_atendimento_ + table_agenciamento_veiculo
