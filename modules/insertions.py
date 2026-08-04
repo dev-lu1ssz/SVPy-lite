@@ -1,82 +1,111 @@
 import sqlite3
 
-def main():
-    conexao = None
-    cursor = None
+class InData:
+    def __init__(self, conexao):
+        self.conexao = conexao
+        self.cursor = conexao.cursor()
     
-    try:
-        conexao = sqlite3.connect('C:\\Users\\luis.oliveira\\Documents\\Luissz\\python_sqlite\\speed_veiculos_sqlite\\database\\SV-Py_lite_2.db')
-        cursor = conexao.cursor()
-
-        class Indata:
-            def __init__(self):
-                pass
-            
-            def cliente(self, nome_cliente, endereco_cliente, telefone, cpf_cliente):
-                self.nome_client = nome_cliente
-                self.endereco_cliente = endereco_cliente
-                self.telefone = telefone
-                self.cpf_cliente = cpf_cliente
-            
-            def funcionario(self, nome_funcionario, salario, data_admissao, data_demissao):
-                self.nome_funcionario = nome_funcionario
-                self.salario = salario
-                self.data_admissao = data_admissao
-                self.data_demissao = data_demissao
-                
-            def departamento(self, nome_departamento):
-                self.nome_departamento = nome_departamento
-            
-            def especialidade(self, nome_especialidade):
-                self.nome_especialidade = nome_especialidade
-                
-            def feedback(self, id_cliente, avaliacao, descricao):
-                self.id_cliente = id_cliente
-                self.avaliacao = avaliacao
-                self.descricao = descricao
-            
-            def fornecedor(self, nome_fornecedor, cnpj, telefone, endereco_fornecedor):
-                self.nome_fornecedor = nome_fornecedor
-                self.cnpj = cnpj
-                self.telefone = telefone
-                self.endereco = endereco_fornecedor
-
-            def ordem_servico(self, data_inicio, data_conclusao, agendamento, valor_total, desc_reparo):
-                self.data_inicio = data_inicio
-                self.data_conclusao = data_conclusao
-                self.agendamento = agendamento
-                self.valor_total = valor_total
-                self.desc_reparo = desc_reparo
-                
-            def pagamento(self, metodo_pagamento, parcelas, data_pagamento, valor_pagamento, status_pagamento, referencia):
-                self.metodo_pagamento = metodo_pagamento
-                self.parcelas = parcelas
-                self.data_pagamento = data_pagamento
-                self.valor_pagamento = valor_pagamento
-                self.status_pagamento = status_pagamento
-                self.referencia = referencia
-            
-            def produto(self, nome_produto, categoria, quantidade, preco, validade):
-                self.nome_produto = nome_produto
-                self.categoria = categoria
-                self.quantidade = quantidade
-                self.preco = preco
-                self.validade = validade
-            
-            def veiculo(self, placa, modelo, marca, chassis):
-                self.placa = placa
-                self.modelo = modelo
-                self.marca = marca
-                self.chassis = chassis
-
-    except sqlite3.DatabaseError as err:
-        print('Erro: ' + err.args)
+    def cliente(self, nome_cliente, endereco_cliente, telefone, cpf_cliente):
+        self.cursor.execute('''
+                INSERT INTO CLIENTE(NOME_CLIENTE, ENDERECO, TELEFONE, CPF_CLIENTE) VALUES
+                (?, ?, ?, ?)
+        ''', 
+        (nome_cliente, endereco_cliente, telefone, cpf_cliente))
+        self.conexao.commit()
+        
+    def funcionario(self, id_departamento, id_especialidade, nome_funcionario, salario, data_admissao, data_demissao, endereco):
+        self.cursor.execute('''
+                INSERT INTO FUNCIONARIO(ID_DEPARTAMENTO, ID_ESPECIALIDADE, NOME_FUNCIONARIO, SALARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO) VALUES
+                (?, ?, ?, ?, ?, ?, ?)
+        ''', 
+        (id_departamento, id_especialidade, nome_funcionario, salario, data_admissao, data_demissao, endereco))
+        self.conexao.commit()
+        
+    def departamento(self, nome_departamento):
+        self.cursor.execute('''
+                INSERT INTO DEPARTAMENTO(NOME_DEPARTAMENTO) VALUES
+                (?)
+        ''', 
+        (nome_departamento, ))
+        self.conexao.commit()
     
-    finally:
-        if cursor:
-            cursor.close()
-        if conexao:
-            conexao.close()
+    def especialidade(self, id_especialidade, nome_especialidade):
+        self.cursor.execute('''
+                INSERT INTO ESPECIALIDADE(ID_ESPECIALIDADE, NOME_ESPECIALIDADE) VALUES
+                (?, ?)
+        ''', 
+        (id_especialidade, nome_especialidade))
+        self.conexao.commit()
+        
+    def feedback(self, id_cliente, avaliacao, descricao):
+        self.cursor.execute('''
+                INSERT INTO FEEDBACK(ID_CLIENTE, AVALIACAO, DESCRICAO) VALUES
+                (?, ?, ?)
+        ''', (id_cliente, avaliacao, descricao))
+        self.conexao.commit()
+        
+    def fornecedor(self, nome_fornecedor, cnpj, telefone, endereco_fornecedor):
+        self.cursor.execute('''
+                INSERT INTO FORNECEDOR(NOME_FORNECEDOR, CNPJ, TELEFONE, ENDERECO) VALUES
+                (?, ?, ?, ?)
+        ''', (nome_fornecedor, cnpj, telefone, endereco_fornecedor))
+        self.conexao.commit()
+        
+    def ordem_servico(self, id_veiculo, id_cliente, data_inicio, data_conclusao, agendamento, valor_total, desc_reparo):
+        self.cursor.execute('''
+                INSERT INTO ORDEM_SERVICO(ID_VEICULO, ID_CLIENTE, DATA_INICIO, DATA_CONCLUSAO, AGENDAMENTO, VALOR_TOTAL, DESC_REPARO) VALUES
+                (?, ?, ?, ?, ?, ?, ?)
+        ''', 
+        (id_veiculo, id_cliente, data_inicio, data_conclusao, agendamento, valor_total, desc_reparo))
+        self.conexao.commit()
+        
+    def pagamento(self, id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, valor_pagamento, status_pagamento, referencia):
+        self.cursor.execute('''
+                INSERT INTO PAGAMENTO(ID_CLIENTE, ID_OS, ID_PRODUTO, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, VALOR_PAGAMENTO, STATUS_PAGAMENTO, REFERENCIA) VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', 
+        (id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, valor_pagamento, status_pagamento, referencia))
+        self.conexao.commit()
+    
+    def produto(self, nome_produto, categoria, quantidade, preco_unitario, validade):
+        self.cursor.execute('''
+                INSERT INTO (ID_FORNECEDOR, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO, VALIDADE) VALUES
+                (?, ?, ?, ?, ?)
+        ''', 
+        (nome_produto, categoria, quantidade, preco_unitario, validade))
+        self.conexao.commit()
 
-if __name__ == '__main__':
-    main()
+    def veiculo(self, id_cliente, placa, modelo, marca, chassis):
+        self.cursor.execute('''
+                INSERT INTO VEICULO(ID_CLIENTE, PLACA, MODELO, MARCA, CHASSIS) VALUES
+                (?, ?, ?, ?, ?)
+        ''', (id_cliente, placa, modelo, marca, chassis))
+        self.conexao.commit()
+    
+    def conta_pagar(self, origem_despesa, valor, data_vencimento, status):
+        self.cursor.execute('''
+                INSERT INTO CONTA_PAGAR(ORIGEM_DESPESA_ID, VALOR, DATA_VENCIMENTO, STATUS) VALUES
+                (?, ?, ?, ?)''', 
+                (origem_despesa, valor, data_vencimento, status)) 
+        self.conexao.commit()
+    
+    def conta_receber(self, origem_receita_id, valor_receber, data_vencimento_receber, status):
+        self.cursor.execute('''
+                INSERT INTO CONTA_RECEBER(ORIGEM_RECEITA_ID, VALOR_RECEBER, DATA_VENCIMENTO_RECEBER, STATUS) VALUES
+                (?, ?, ?, ?)''', 
+                (origem_receita_id, valor_receber, data_vencimento_receber, status)) 
+        self.conexao.commit()
+    
+    def origem_despesa(self, nome_or_despesa, categoria_or_despesa): 
+        self.cursor.execute('''
+                INSERT INTO ORIGEM_DESPESA(NOME, CATEGORIA) VALUES
+                (NOME, CATEGORIA)''', 
+                (nome_or_despesa, categoria_or_despesa)) 
+        self.conexao.commit()
+    
+    def origem_receita(self, nome_or_receita, categoria_or_receita): 
+        self.cursor.execute('''
+                INSERT INTO ORIGEM_RECEITA(NOME, CATEGORIA) VALUES
+                (?, ?)''', 
+                (nome_or_receita, categoria_or_receita)) 
+        self.conexao.commit()
