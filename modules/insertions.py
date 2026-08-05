@@ -165,3 +165,13 @@ class InData:
             (id_cliente, id_veiculo, data_agenciamento, valor, prazo_dias, comissao, status),
         )
         self.conexao.commit()
+        
+    def folha_pagamento(self, id_funcionario, status_pagamento, mes_referencia, data_pagamento, salario_bruto, adicionais, descontos):
+        self.cursor.execute(
+            '''
+                INSERT INTO FOLHA_PAGAMENTO(ID_FUNCIONARIO, STATUS_PAGAMENTO, MES_REFERENCIA, DATA_PAGAMENTO, SALARIO_BRUTO, ADICIONAIS, DESCONTOS) VALUES
+                (?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (id_funcionario, status_pagamento, mes_referencia, data_pagamento, salario_bruto, adicionais, descontos)
+        )
+        self.conexao.commit()
