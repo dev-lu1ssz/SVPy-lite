@@ -182,10 +182,30 @@ def main():
             );
         '''
         
+        table_folha_pagamento = '''
+            CREATE TABLE IF NOT EXISTS FOLHA_PAGAMENTO(
+                ID_FP INTEGER PRIMARY KEY NOT NULL,
+                ID_FUNCIONARIO INTEGER NOT NULL,
+                STATUS_PAGAMENTO VARCHAR(10) NOT NULL,
+                MES_REFERENCIA INTEGER NOT NULL,
+                DATA_PAGAMENTO DATE NOT NULL,
+                SALARIO_BRUTO REAL NOT NULL,
+                ADICIONAIS REAL NULL,
+                DESCONTOS REAL NOT NULL,
+                SALARIO_LIQUIDO REAL GENERATED ALWAYS AS ((SALARIO_BRUTO + COALESCE(ADICIONAIS, 0)) - DESCONTOS) STORED,
+                FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+            );
+        ''' # STATUS PAGAMENTO - Realizado/Programado
+            # MES_REFERENCIA - 1 a 12
+            # ADICIONAIS - Horas extras (nem todos os funcionarios)
+            # DESCONTOS - Beneficios (INSS, FGTS, Vale-Transporte, Vale-Refeição, Vale-Alimentação)
+            # SALARIO_LIQUIDO - Coluna calculada e armazenada
+        
+        
         all_tables = table_departamento + table_origem_da_despesa + table_origem_da_receita + table_cliente + table_fornecedor + \
         table_especialidade + table_funcionario + table_veiculo + table_produto + table_ordem_servico + \
         table_pagamento + table_feedback + table_conta_receber + table_conta_pagar + \
-        table_atendimento_ + table_agenciamento_veiculo
+        table_atendimento_ + table_agenciamento_veiculo + table_folha_pagamento
         
         cursor.executescript(all_tables)
         
