@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 def main():
@@ -5,7 +6,9 @@ def main():
     cursor = None
 
     try:
-        conexao = sqlite3.connect('database\\SV-Py_lite_updated.db')
+        db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'SV-Py_lite_updated.db')
+        db_path = os.path.abspath(db_path)
+        conexao = sqlite3.connect(db_path)
         conexao.execute('PRAGMA foreign_keys = on')
         cursor = conexao.cursor()
 
@@ -133,11 +136,13 @@ def main():
         table_conta_receber = '''
             CREATE TABLE IF NOT EXISTS CONTA_RECEBER(
                 ID_CONTA_RECEBER INTEGER PRIMARY KEY NOT NULL,
+                ID_PAGAMENTO INTEGER NOT NULL,
                 ORIGEM_RECEITA_ID INTEGER NOT NULL,
                 VALOR_RECEBER REAL NOT NULL,
                 DATA_VENCIMENTO_RECEBER DATE NOT NULL,
                 STATUS VARCHAR(15) NOT NULL,
-                FOREIGN KEY (ORIGEM_RECEITA_ID) REFERENCES ORIGEM_RECEITA(ORIGEM_RECEITA_ID)
+                FOREIGN KEY (ORIGEM_RECEITA_ID) REFERENCES ORIGEM_RECEITA(ORIGEM_RECEITA_ID),
+                FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO)
             );
         ''' # STATUS - Pendente/Recebido
         table_origem_da_despesa = '''
