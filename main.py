@@ -2,11 +2,11 @@ import modules.database_creator as database_creator
 import modules.insertions as insertions
 import os
 
-if 'SV-Py_lite_2.db' not in os.listdir('C:\\Users\\luis.oliveira\\Documents\\Luissz\\python_sqlite\\speed_veiculos_sqlite\\database'):
+if 'SV-Py_lite_2.db' not in os.listdir('database'):
     print('Base de dados não encontrada. Criando base de dados SV-Py')
     database_creator.main()
     
-    if 'SV-Py_lite_2.db' not in os.listdir('database'):
+    if 'SV-Py_lite_updated.db' not in os.listdir('database'):
         print('Ocorreu algum erro ao tentar criar a base de dados no diretório "database"')
         exit()
 
