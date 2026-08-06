@@ -5,11 +5,11 @@ def main():
     cursor = None
 
     try:
-        conexao = sqlite3.connect('database\\SV-Py_lite_2.db')
+        conexao = sqlite3.connect('database\\SV-Py_lite_updated.db')
         conexao.execute('PRAGMA foreign_keys = on')
         cursor = conexao.cursor()
-        
-        
+
+
         table_departamento = '''
             CREATE TABLE IF NOT EXISTS DEPARTAMENTO(
                 ID_DEPARTAMENTO INTEGER PRIMARY KEY NOT NULL,
