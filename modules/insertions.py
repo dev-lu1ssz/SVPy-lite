@@ -116,13 +116,13 @@ class InData:
         )
         self.conexao.commit()
 
-    def conta_receber(self, origem_receita_id, valor_receber, data_vencimento_receber, status):
+    def conta_receber(self, origem_receita_id, pagamento_id, valor_receber, data_vencimento_receber, status):
         self.cursor.execute(
             '''
-                INSERT INTO CONTA_RECEBER(ORIGEM_RECEITA_ID, VALOR_RECEBER, DATA_VENCIMENTO_RECEBER, STATUS) VALUES
-                (?, ?, ?, ?)
+                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, ORIGEM_RECEITA_ID, VALOR_RECEBER, DATA_VENCIMENTO_RECEBER, STATUS) VALUES
+                (?, ?, ?, ?, ?)
             ''',
-            (origem_receita_id, valor_receber, data_vencimento_receber, status),
+            (pagamento_id, origem_receita_id, valor_receber, data_vencimento_receber, status),
         )
         self.conexao.commit()
 
