@@ -126,40 +126,24 @@ def main():
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
             );
         ''' # O cliente pode fazer avaliações de 0 a 10 estrelas, ele também poderá preencher o motivo da avaliação
-        table_origem_da_receita = '''
-            CREATE TABLE IF NOT EXISTS ORIGEM_RECEITA(
-                ORIGEM_RECEITA_ID INTEGER PRIMARY KEY NOT NULL,
-                NOME VARCHAR(20) NOT NULL,
-                CATEGORIA VARCHAR(20) NOT NULL
-            );
-        ''' #  CATEGORIA - Produto, Reparo, Agenciamento
+
         table_conta_receber = '''
             CREATE TABLE IF NOT EXISTS CONTA_RECEBER(
                 ID_CONTA_RECEBER INTEGER PRIMARY KEY NOT NULL,
                 ID_PAGAMENTO INTEGER NOT NULL,
-                ORIGEM_RECEITA_ID INTEGER NOT NULL,
-                VALOR_RECEBER REAL NOT NULL,
                 DATA_VENCIMENTO_RECEBER DATE NOT NULL,
                 STATUS VARCHAR(15) NOT NULL,
-                FOREIGN KEY (ORIGEM_RECEITA_ID) REFERENCES ORIGEM_RECEITA(ORIGEM_RECEITA_ID),
                 FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO)
             );
         ''' # STATUS - Pendente/Recebido
-        table_origem_da_despesa = '''
-            CREATE TABLE IF NOT EXISTS ORIGEM_DESPESA(
-                ORIGEM_DESPESA_ID INTEGER PRIMARY KEY NOT NULL,
-                NOME VARCHAR(20) NOT NULL,
-                CATEGORIA VARCHAR(20) NOT NULL
-            );
-        '''
+
         table_conta_pagar = '''
             CREATE TABLE IF NOT EXISTS CONTA_PAGAR(
                 ID_CONTA_PAGAR INTEGER PRIMARY KEY NOT NULL,
-                ORIGEM_DESPESA_ID INTEGER NOT NULL,
+                DESCRICAO VARCHAR(100) NOT NULL,
                 VALOR REAL NOT NULL,
                 DATA_VENCIMENTO DATE NOT NULL,
-                STATUS VARCHAR(20) NOT NULL,
-                FOREIGN KEY (ORIGEM_DESPESA_ID) REFERENCES ORIGEM_DESPESA(ORIGEM_DESPESA_ID)
+                STATUS VARCHAR(20) NOT NULL
             );
         ''' # STATUS - Pendente/Pago
         table_atendimento_= '''
@@ -207,7 +191,7 @@ def main():
             # SALARIO_LIQUIDO - Coluna calculada e armazenada
         
         
-        all_tables = table_departamento + table_origem_da_despesa + table_origem_da_receita + table_cliente + table_fornecedor + \
+        all_tables = table_departamento + table_cliente + table_fornecedor + \
         table_especialidade + table_funcionario + table_veiculo + table_produto + table_ordem_servico + \
         table_pagamento + table_feedback + table_conta_receber + table_conta_pagar + \
         table_atendimento_ + table_agenciamento_veiculo + table_folha_pagamento

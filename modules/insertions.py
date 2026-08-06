@@ -106,43 +106,23 @@ class InData:
         )
         self.conexao.commit()
 
-    def conta_pagar(self, origem_despesa, valor, data_vencimento, status):
+    def conta_pagar(self, descricao, valor, data_vencimento, status):
         self.cursor.execute(
             '''
-                INSERT INTO CONTA_PAGAR(ORIGEM_DESPESA_ID, VALOR, DATA_VENCIMENTO, STATUS) VALUES
+                INSERT INTO CONTA_PAGAR(DESCRICAO, VALOR, DATA_VENCIMENTO, STATUS) VALUES
                 (?, ?, ?, ?)
             ''',
-            (origem_despesa, valor, data_vencimento, status),
+            (descricao, valor, data_vencimento, status),
         )
         self.conexao.commit()
 
-    def conta_receber(self, origem_receita_id, pagamento_id, valor_receber, data_vencimento_receber, status):
+    def conta_receber(self, pagamento_id, data_vencimento_receber, status):
         self.cursor.execute(
             '''
-                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, ORIGEM_RECEITA_ID, VALOR_RECEBER, DATA_VENCIMENTO_RECEBER, STATUS) VALUES
-                (?, ?, ?, ?, ?)
+                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, DATA_VENCIMENTO_RECEBER, STATUS) VALUES
+                (?, ?, ?)
             ''',
-            (pagamento_id, origem_receita_id, valor_receber, data_vencimento_receber, status),
-        )
-        self.conexao.commit()
-
-    def origem_despesa(self, nome_or_despesa, categoria_or_despesa):
-        self.cursor.execute(
-            '''
-                INSERT INTO ORIGEM_DESPESA(NOME, CATEGORIA) VALUES
-                (?, ?)
-            ''',
-            (nome_or_despesa, categoria_or_despesa),
-        )
-        self.conexao.commit()
-
-    def origem_receita(self, nome_or_receita, categoria_or_receita):
-        self.cursor.execute(
-            '''
-                INSERT INTO ORIGEM_RECEITA(NOME, CATEGORIA) VALUES
-                (?, ?)
-            ''',
-            (nome_or_receita, categoria_or_receita),
+            (pagamento_id, data_vencimento_receber, status),
         )
         self.conexao.commit()
 
