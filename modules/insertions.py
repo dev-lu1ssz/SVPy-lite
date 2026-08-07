@@ -16,13 +16,13 @@ class InData:
         )
         self.conexao.commit()
 
-    def funcionario(self, id_departamento, id_especialidade, nome_funcionario, salario, data_admissao, data_demissao, endereco):
+    def funcionario(self, id_departamento, id_especialidade, nome_funcionario, data_admissao, data_demissao, endereco):
         self.cursor.execute(
             '''
-                INSERT INTO FUNCIONARIO(ID_DEPARTAMENTO, ID_ESPECIALIDADE, NOME_FUNCIONARIO, SALARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO) VALUES
-                (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO FUNCIONARIO(ID_DEPARTAMENTO, ID_ESPECIALIDADE, NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO) VALUES
+                (?, ?, ?, ?, ?, ?)
             ''',
-            (id_departamento, id_especialidade, nome_funcionario, salario, data_admissao, data_demissao, endereco),
+            (id_departamento, id_especialidade, nome_funcionario, data_admissao, data_demissao, endereco),
         )
         self.conexao.commit()
 
@@ -86,13 +86,13 @@ class InData:
         )
         self.conexao.commit()
 
-    def produto(self, id_fornecedor, nome_produto, categoria, quantidade, preco_unitario, validade):
+    def produto(self, id_fornecedor, nome_produto, categoria, quantidade, preco_unitario):
         self.cursor.execute(
             '''
-                INSERT INTO PRODUTO(ID_FORNECEDOR, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO, VALIDADE) VALUES
-                (?, ?, ?, ?, ?, ?)
+                INSERT INTO PRODUTO(ID_FORNECEDOR, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO) VALUES
+                (?, ?, ?, ?, ?)
             ''',
-            (id_fornecedor, nome_produto, categoria, quantidade, preco_unitario, validade),
+            (id_fornecedor, nome_produto, categoria, quantidade, preco_unitario),
         )
         self.conexao.commit()
 
