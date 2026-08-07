@@ -49,7 +49,6 @@ def main():
                 ID_DEPARTAMENTO INTEGER NOT NULL,
                 ID_ESPECIALIDADE INTEGER NOT NULL,
                 NOME_FUNCIONARIO VARCHAR(30) NOT NULL,
-                SALARIO REAL NOT NULL,
                 DATA_ADMISSAO DATE NOT NULL,
                 DATA_DEMISSAO DATE NULL,
                 ENDERECO VARCHAR(200) NOT NULL,
@@ -77,7 +76,6 @@ def main():
                 QUANTIDADE INTEGER NOT NULL,
                 PRECO_UNITARIO REAL NOT NULL,
                 PRECO_TOTAL REAL GENERATED ALWAYS AS (QUANTIDADE * PRECO_UNITARIO) STORED,
-                VALIDADE DATE NULL,
                 FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR)
             );
         '''
@@ -189,12 +187,26 @@ def main():
             # ADICIONAIS - Horas extras (nem todos os funcionarios)
             # DESCONTOS - Beneficios (INSS, FGTS, Vale-Transporte, Vale-Refeição, Vale-Alimentação)
             # SALARIO_LIQUIDO - Coluna calculada e armazenada
+            
+        tabel_estoque = '''
+            CREATE TABLE IF NOT EXISTS ESTOQUE(
+                ID_ESTOQUE INTEGER PRIMARY KEY NOT NULL,
+                ID_FORNECEDOR INTEGER NOT NULL,
+                ID_PRODUTO INTEGER NOT NULL,
+                QTDE_ESTOQUE INTEGER NOT NULL,
+                QTDE_MIN INTEGER NOT NULL,
+                DATA_VALIDADE DATE NOT NULL,
+                VALIDADE_DIAS INTEGER NOT NULL,
+                FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR),
+                FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
+            );
+        '''
         
         
         all_tables = table_departamento + table_cliente + table_fornecedor + \
         table_especialidade + table_funcionario + table_veiculo + table_produto + table_ordem_servico + \
         table_pagamento + table_feedback + table_conta_receber + table_conta_pagar + \
-        table_atendimento_ + table_agenciamento_veiculo + table_folha_pagamento
+        table_atendimento_ + table_agenciamento_veiculo + table_folha_pagamento + tabel_estoque
         
         cursor.executescript(all_tables)
         
