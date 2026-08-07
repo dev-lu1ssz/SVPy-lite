@@ -51,3 +51,10 @@ class Selectdata:
 
         self.cursor.execute(query_sql, params)
         return self.cursor.fetchall()
+    
+    def info_produto(self, id_fornecedor=None):
+        params = []
+        query_sql = '''
+            SELECT PRODUT
+        '''
+        
