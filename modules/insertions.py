@@ -76,13 +76,13 @@ class InData:
         )
         self.conexao.commit()
 
-    def pagamento(self, id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, valor_pagamento, status_pagamento, referencia):
+    def pagamento(self, id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, referencia):
         self.cursor.execute(
             '''
-                INSERT INTO PAGAMENTO(ID_CLIENTE, ID_OS, ID_PRODUTO, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, VALOR_PAGAMENTO, STATUS_PAGAMENTO, REFERENCIA) VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO PAGAMENTO(ID_CLIENTE, ID_OS, ID_PRODUTO, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, STATUS_PAGAMENTO, REFERENCIA) VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?)
             ''',
-            (id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, valor_pagamento, status_pagamento, referencia),
+            (id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, referencia),
         )
         self.conexao.commit()
 
@@ -116,13 +116,13 @@ class InData:
         )
         self.conexao.commit()
 
-    def conta_receber(self, pagamento_id, data_vencimento_receber, status):
+    def conta_receber(self, pagamento_id, data_vencimento_receber, valor_pagamento, status):
         self.cursor.execute(
             '''
-                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, DATA_VENCIMENTO_RECEBER, STATUS) VALUES
-                (?, ?, ?)
+                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, DATA_VENCIMENTO_RECEBER, VALOR_PAGAMENTO, STATUS) VALUES
+                (?, ?, ?, ?)
             ''',
-            (pagamento_id, data_vencimento_receber, status),
+            (pagamento_id, data_vencimento_receber, valor_pagamento, status),
         )
         self.conexao.commit()
 

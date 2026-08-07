@@ -8,6 +8,10 @@ def main():
     try:
         db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'SV-Py_lite_updated.db')
         db_path = os.path.abspath(db_path)
+
+        if os.path.exists(db_path):
+            os.remove(db_path)
+
         conexao = sqlite3.connect(db_path)
         conexao.execute('PRAGMA foreign_keys = on')
         cursor = conexao.cursor()
@@ -103,14 +107,17 @@ def main():
                 METODO_PAGAMENTO VARCHAR(30),
                 PARCELAS INTEGER NULL,
                 DATA_PAGAMENTO DATE NOT NULL,
-                VALOR_PAGAMENTO REAL NOT NULL,
                 STATUS_PAGAMENTO VARCHAR(20) NOT NULL,
                 REFERENCIA VARCHAR(30) NOT NULL,
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
                 FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
-                FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
+                FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO),
+                CHECK (
+                    ID_OS IS NOT NULL OR ID_PRODUTO IS NOT NULL
+                )
             );
-        ''' # Número máximo de parcelas é 20x. 
+        ''' # Número máximo de parcelas é 20x.
+            # A transação pode estar ligada a OS, a produto, ou aos dois, mas pelo menos um deles deve existir.
             # Referencia - String que mostra exatamente o que ele comprou, se for produto então QUAL produto ele comprou, se for ordem de serviço então apenas escrever "Reparo"
             # ID_OS e ID_PRODUTO nulos pois se não realizou reparo então comprou produto, e vice versa
 
@@ -130,6 +137,7 @@ def main():
                 ID_CONTA_RECEBER INTEGER PRIMARY KEY NOT NULL,
                 ID_PAGAMENTO INTEGER NOT NULL,
                 DATA_VENCIMENTO_RECEBER DATE NOT NULL,
+                VALOR_PAGAMENTO REAL NOT NULL,
                 STATUS VARCHAR(15) NOT NULL,
                 FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO)
             );
