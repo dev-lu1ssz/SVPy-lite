@@ -16,7 +16,38 @@ class Selectdata:
         colunas = self.cursor.fetchall()
         nome_colunas = [coluna[1] for coluna in colunas]
         return nome_colunas
-        
+    
+    def consulta_tabela(self, nome_tabela):
+        nome_tabela = str(nome_tabela).strip()
+
+        tabelas_permitidas = {
+            "CLIENTE",
+            "VEICULO",
+            "FORNECEDOR",
+            "PRODUTO",
+            "FUNCIONARIO",
+            "ORDEM_SERVICO",
+            "PAGAMENTO",
+            "FEEDBACK",
+            "DEPARTAMENTO",
+            "ESPECIALIDADE",
+            "ESTOQUE",
+            "ATENDIMENTO",
+            "AGENCIAMENTO_VEICULO",
+            "FOLHA_PAGAMENTO",
+            "CONTA_RECEBER",
+            "CONTA_PAGAR"
+        }
+
+        if nome_tabela.upper() not in tabelas_permitidas:
+            raise ValueError(f"Tabela inválida: {nome_tabela}")
+
+        query_sql = f'SELECT * FROM "{nome_tabela.upper()}";'
+        self.cursor.execute(query_sql)
+        colunas = [descricao[0] for descricao in self.cursor.description]
+        dados = self.cursor.fetchall()
+        return colunas, dados
+    
     def client_info(self, id_cliente=None):
         query_sql = '''
             SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
