@@ -5,6 +5,18 @@ class Selectdata:
         self.conexao = conexao
         self.cursor = conexao.cursor()
         
+    def all_tables(self):
+        self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table";')
+        return self.cursor.fetchall()
+    
+    def columns(self, nome):
+        nome = str(nome).strip()
+        nome = nome.replace('"', '""')
+        self.cursor.execute(f'PRAGMA table_info("{nome}");')
+        colunas = self.cursor.fetchall()
+        nome_colunas = [coluna[1] for coluna in colunas]
+        return nome_colunas
+        
     def client_info(self, id_cliente=None):
         query_sql = '''
             SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
