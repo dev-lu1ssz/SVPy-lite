@@ -104,22 +104,23 @@ def main():
                 ID_CLIENTE INTEGER NULL,
                 ID_OS INTEGER NULL,
                 ID_PRODUTO INTEGER NULL,
-                METODO_PAGAMENTO VARCHAR(30),
-                PARCELAS INTEGER NULL,
+                METODO_PAGAMENTO VARCHAR(30) NOT NULL,
+                PARCELAS INTEGER NOT NULL DEFAULT 1,
                 DATA_PAGAMENTO DATE NOT NULL,
                 STATUS_PAGAMENTO VARCHAR(20) NOT NULL,
+                VALOR_TOTAL REAL NOT NULL,
                 REFERENCIA VARCHAR(30) NOT NULL,
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
                 FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
                 FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO),
                 CHECK (
                     ID_OS IS NOT NULL OR ID_PRODUTO IS NOT NULL
-                )
+                ),
+                CHECK (PARCELAS >= 1)
             );
-        ''' # Número máximo de parcelas é 20x.
-            # A transação pode estar ligada a OS, a produto, ou aos dois, mas pelo menos um deles deve existir.
-            # Referencia - String que mostra exatamente o que ele comprou, se for produto então QUAL produto ele comprou, se for ordem de serviço então apenas escrever "Reparo"
-            # ID_OS e ID_PRODUTO nulos pois se não realizou reparo então comprou produto, e vice versa
+        ''' # A transação pode estar ligada a OS, a produto, ou aos dois, mas pelo menos um deles deve existir.
+            # Referencia - String que mostra exatamente o que ele comprou; para produto, informa o nome do produto; para OS, usa "Reparo".
+            # PARCELAS indica a quantidade total de parcelas do pagamento.
 
         table_feedback = '''
             CREATE TABLE IF NOT EXISTS FEEDBACK(
@@ -136,12 +137,19 @@ def main():
             CREATE TABLE IF NOT EXISTS CONTA_RECEBER(
                 ID_CONTA_RECEBER INTEGER PRIMARY KEY NOT NULL,
                 ID_PAGAMENTO INTEGER NOT NULL,
+                NUMERO_PARCELA INTEGER NOT NULL,
+                VALOR_PARCELA REAL NOT NULL,
                 DATA_VENCIMENTO_RECEBER DATE NOT NULL,
-                VALOR_PAGAMENTO REAL NOT NULL,
+                DATA_RECEBIMENTO DATE NULL,
                 STATUS VARCHAR(15) NOT NULL,
-                FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO)
+                UNIQUE (ID_PAGAMENTO, NUMERO_PARCELA),
+                FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO),
+                CHECK (NUMERO_PARCELA >= 1),
+                CHECK (STATUS IN ('Pendente', 'Recebido', 'Vencida'))
             );
-        ''' # STATUS - Pendente/Recebido
+        ''' # Cada linha representa uma parcela específica do pagamento.
+            # VALOR_PARCELA guarda o valor individual da parcela, sem duplicar o valor total do pagamento.
+            # STATUS - Pendente/Recebido/Vencida
 
         table_conta_pagar = '''
             CREATE TABLE IF NOT EXISTS CONTA_PAGAR(

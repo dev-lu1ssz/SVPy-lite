@@ -1,10 +1,26 @@
 import sqlite3
+import datetime
 
 
 class InData:
     def __init__(self, conexao):
         self.conexao = conexao
         self.cursor = conexao.cursor()
+
+    @staticmethod
+    def _data_mais_meses(data_base, meses):
+        data = datetime.datetime.strptime(data_base, '%Y-%m-%d').date()
+        ano = data.year + ((data.month - 1 + meses) // 12)
+        mes = (data.month - 1 + meses) % 12 + 1
+        dia = min(data.day, 28)
+        return datetime.date(ano, mes, dia).isoformat()
+
+    @staticmethod
+    def _valor_parcela_total(valor_total, parcelas):
+        valor_total = float(valor_total)
+        parcelas = int(parcelas)
+        valor_base = round(valor_total / parcelas, 2)
+        return valor_base
 
     def cliente(self, nome_cliente, endereco_cliente, telefone, cpf_cliente):
         self.cursor.execute(
@@ -76,15 +92,38 @@ class InData:
         )
         self.conexao.commit()
 
-    def pagamento(self, id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, referencia):
+    def pagamento(self, id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, valor_total, referencia):
         self.cursor.execute(
             '''
-                INSERT INTO PAGAMENTO(ID_CLIENTE, ID_OS, ID_PRODUTO, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, STATUS_PAGAMENTO, REFERENCIA) VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO PAGAMENTO(ID_CLIENTE, ID_OS, ID_PRODUTO, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, STATUS_PAGAMENTO, VALOR_TOTAL, REFERENCIA) VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''',
-            (id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, referencia),
+            (id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, valor_total, referencia),
         )
+        id_pagamento = self.cursor.lastrowid
+
+        if int(parcelas) > 1:
+            valor_base = self._valor_parcela_total(valor_total, parcelas)
+            total_ja_distribuido = 0.0
+
+            for parcela in range(1, int(parcelas) + 1):
+                if parcela == int(parcelas):
+                    valor_parcela = round(float(valor_total) - total_ja_distribuido, 2)
+                else:
+                    valor_parcela = valor_base
+                    total_ja_distribuido = round(total_ja_distribuido + valor_parcela, 2)
+
+                data_vencimento = self._data_mais_meses(data_pagamento, parcela - 1)
+                self.cursor.execute(
+                    '''
+                        INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, NUMERO_PARCELA, VALOR_PARCELA, DATA_VENCIMENTO_RECEBER, DATA_RECEBIMENTO, STATUS)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ''',
+                    (id_pagamento, parcela, valor_parcela, data_vencimento, None, 'Pendente'),
+                )
+
         self.conexao.commit()
+        return id_pagamento
 
     def produto(self, id_fornecedor, nome_produto, categoria, quantidade, preco_unitario):
         self.cursor.execute(
@@ -116,15 +155,16 @@ class InData:
         )
         self.conexao.commit()
 
-    def conta_receber(self, pagamento_id, data_vencimento_receber, valor_pagamento, status):
+    def conta_receber(self, pagamento_id, numero_parcela, data_vencimento_receber, valor_parcela, status='Pendente', data_recebimento=None):
         self.cursor.execute(
             '''
-                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, DATA_VENCIMENTO_RECEBER, VALOR_PAGAMENTO, STATUS) VALUES
-                (?, ?, ?, ?)
+                INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, NUMERO_PARCELA, VALOR_PARCELA, DATA_VENCIMENTO_RECEBER, DATA_RECEBIMENTO, STATUS) VALUES
+                (?, ?, ?, ?, ?, ?)
             ''',
-            (pagamento_id, data_vencimento_receber, valor_pagamento, status),
+            (pagamento_id, numero_parcela, valor_parcela, data_vencimento_receber, data_recebimento, status),
         )
         self.conexao.commit()
+        return self.cursor.lastrowid
 
     def atendimento(self, id_cliente, id_funcionario, data_atendimento):
         self.cursor.execute(
