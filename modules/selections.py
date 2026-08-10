@@ -5,6 +5,20 @@ class Selectdata:
         self.conexao = conexao
         self.cursor = conexao.cursor()
         
+    def client_info(self, id_cliente=None):
+        query_sql = '''
+            SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
+            FROM CLIENTE
+        '''
+        params = []
+
+        if id_cliente is not None:
+            query_sql += ' WHERE ID_CLIENTE = ?'
+            params.append(id_cliente)
+
+        self.cursor.execute(query_sql, tuple(params))
+        return self.cursor.fetchall()
+    
     def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False, faixa_dados=None):
         params = []
         query_sql = '''
@@ -57,4 +71,3 @@ class Selectdata:
         query_sql = '''
             SELECT PRODUT
         '''
-        
