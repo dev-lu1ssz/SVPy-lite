@@ -47,7 +47,6 @@ class Selectdata:
         colunas = [descricao[0] for descricao in self.cursor.description]
         dados = self.cursor.fetchall()
         return colunas, dados
-    
     def client_info(self, id_cliente=None):
         query_sql = '''
             SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
@@ -108,9 +107,108 @@ class Selectdata:
 
         self.cursor.execute(query_sql, params)
         return self.cursor.fetchall()
-    
-    def info_produto(self, id_fornecedor=None):
+
+    def consulta_carro(self, placa=None):
+        query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
         params = []
-        query_sql = '''
-            SELECT PRODUT
-        '''
+        
+        if placa is not None:
+            query_sql += ' WHERE PLACA = ?'
+            params.append(placa)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        return self.cursor.fetchall()
+    
+    def consulta_produto(self, categoria=None):
+        query_sql = 'SELECT ID_PRODUTO, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO, PRECO_TOTAL FROM PRODUTO '
+        params = []
+        
+        if categoria is not None:
+            query_sql += 'WHERE CATEGORIA = ?'
+            params.append(categoria)
+
+        self.cursor.execute(query_sql, tuple(params))
+        return self.cursor.fetchall()
+    
+    def consulta_fornecedor(self, nome=None, cnpj=None):
+        query_sql = 'SELECT * FROM FORNECEDOR '
+        params = []
+        
+        if nome is not None:
+            query_sql += 'WHERE NOME = ?'
+            params.append(nome)
+        
+        if cnpj is not None:
+            query_sql += 'WHERE CNPJ = ?'
+            params.append(cnpj)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        return self.cursor.fetchall()
+    
+    def consulta_funcionarios(self, id_funcionario=None, nome=None, id_departamento=None, id_especialidade=None):
+        base_query = (
+            'SELECT ID_FUNCIONARIO, ID_DEPARTAMENTO, ID_ESPECIALIDADE, '
+            'NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO '
+            'FROM FUNCIONARIO'
+        )
+        params = []
+        conditions = []
+
+        if id_funcionario is not None:
+            conditions.append('ID_FUNCIONARIO = ?')
+            params.append(id_funcionario)
+
+        if nome is not None:
+            conditions.append('NOME_FUNCIONARIO LIKE ?')
+            params.append(f'%{nome}%')
+
+        if id_departamento is not None:
+            conditions.append('ID_DEPARTAMENTO = ?')
+            params.append(id_departamento)
+
+        if id_especialidade is not None:
+            conditions.append('ID_ESPECIALIDADE = ?')
+            params.append(id_especialidade)
+
+        class FuncQuery:
+            def __init__(self, cursor, base_query, conditions, params):
+                self.cursor = cursor
+                self.base_query = base_query
+                self.base_conditions = list(conditions)
+                self.base_params = list(params)
+
+            def _build_and_exec(self, extra_condition=None, extra_params=None, single=False):
+                q = self.base_query
+                conds = list(self.base_conditions)
+                params = list(self.base_params)
+
+                if conds:
+                    q += '\nWHERE ' + ' AND '.join(conds)
+
+                if extra_condition:
+                    if conds:
+                        q += ' AND ' + extra_condition
+                    else:
+                        q += '\nWHERE ' + extra_condition
+
+                if extra_params:
+                    params.extend(extra_params)
+
+                self.cursor.execute(q, tuple(params))
+                return self.cursor.fetchone() if single else self.cursor.fetchall()
+
+            def all(self):
+                return self._build_and_exec()
+
+            def ativos(self):
+                return self._build_and_exec('DATA_DEMISSAO IS NULL')
+
+            def demitidos(self):
+                return self._build_and_exec('DATA_DEMISSAO IS NOT NULL')
+
+            def by_id(self, idv):
+                return self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True)
+
+        return FuncQuery(self.cursor, base_query, conditions, params)
+    
+    
