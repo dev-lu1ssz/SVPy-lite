@@ -4,7 +4,7 @@ class Selectdata:
     def __init__(self, conexao):
         self.conexao = conexao
         self.cursor = conexao.cursor()
-        
+    
     def all_tables(self):
         self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table";')
         return self.cursor.fetchall()
@@ -47,6 +47,7 @@ class Selectdata:
         colunas = [descricao[0] for descricao in self.cursor.description]
         dados = self.cursor.fetchall()
         return colunas, dados
+    
     def client_info(self, id_cliente=None):
         query_sql = '''
             SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
@@ -83,7 +84,7 @@ class Selectdata:
         else:
             self.cursor.execute(query_sql, params)
             return self.cursor.fetchall()
-        
+    
     def info_pagamento(self, id_cliente=None, sitaucao=None):
         params = []
         query_sql = '''
@@ -211,4 +212,36 @@ class Selectdata:
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
+    def metodos_pagamento(self, nome_metodo=None):
+        metodos_permitidos = {
+            'PIX',
+            'CARTÃO DE CRÉDITO',
+            'CARTÃO DE DÉBITO',
+            'BOLETO',
+            'CARTÃO'
+        }
+        params = []
+        query_sql = 'SELECT * FROM PAGAMENTO'
+
+        if nome_metodo not in metodos_permitidos and nome_metodo is not None:
+            raise ValueError(f'Valor inválido: {nome_metodo}')
+                
+        if nome_metodo:
+            query_sql += ' WHERE METODO_PAGAMENTO = ?'
+            params.append(nome_metodo)
+
+        self.cursor.execute(query_sql, tuple(params))
+        return self.cursor.fetchall()
     
+    def consulta_estoque_min(self):
+        query_sql = '''
+            SELECT ID_PRODUTO, QTDE_ESTOQUE, QTDE_MIN,
+                CASE
+                    WHEN QTDE_ESTOQUE = QTDE_MIN THEN 'Limite mínimo atingido'
+                    WHEN QTDE_ESTOQUE < QTDE_MIN THEN 'Abaixo do limite'
+                    ELSE 'Acima do limite mínimo'
+                END AS STATUS
+            FROM ESTOQUE;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
