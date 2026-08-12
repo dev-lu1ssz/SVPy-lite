@@ -135,6 +135,17 @@ class InData:
         )
         self.conexao.commit()
 
+    def estoque(self, id_fornecedor, id_produto, qtde_estoque, qtde_min, data_validade, validade_dias):
+        self.cursor.execute(
+            '''
+                INSERT INTO ESTOQUE(ID_FORNECEDOR, ID_PRODUTO, QTDE_ESTOQUE, QTDE_MIN, DATA_VALIDADE, VALIDADE_DIAS) VALUES
+                (?, ?, ?, ?, ?, ?)
+            ''',
+            (id_fornecedor, id_produto, qtde_estoque, qtde_min, data_validade, validade_dias),
+        )
+        self.conexao.commit()
+        return self.cursor.lastrowid
+
     def veiculo(self, id_cliente, placa, modelo, marca, chassis):
         self.cursor.execute(
             '''
