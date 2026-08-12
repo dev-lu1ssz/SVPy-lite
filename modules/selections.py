@@ -149,7 +149,7 @@ class Selectdata:
     def consulta_funcionarios(self, id_funcionario=None, nome=None, id_departamento=None, id_especialidade=None):
         base_query = (
             'SELECT ID_FUNCIONARIO, ID_DEPARTAMENTO, ID_ESPECIALIDADE, '
-            'NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO '
+            'NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO,  '
             'FROM FUNCIONARIO'
         )
         params = []
@@ -235,13 +235,34 @@ class Selectdata:
     
     def consulta_estoque_min(self):
         query_sql = '''
-            SELECT ID_PRODUTO, QTDE_ESTOQUE, QTDE_MIN,
+            SELECT PRODUTO.NOME_PRODUTO, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.QTDE_MIN,
                 CASE
                     WHEN QTDE_ESTOQUE = QTDE_MIN THEN 'Limite mínimo atingido'
                     WHEN QTDE_ESTOQUE < QTDE_MIN THEN 'Abaixo do limite'
                     ELSE 'Acima do limite mínimo'
                 END AS STATUS
-            FROM ESTOQUE;
+            FROM ESTOQUE
+            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = ESTOQUE.ID_PRODUTO;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def consulta_salario_bruto(self, salario):
+        query_sql = f'''
+            SELECT FUNCIONARIO.NOME_FUNCIONARIO, FOLHA_PAGAMENTO.SALARIO_BRUTO, FUNCIONARIO.DATA_ADMISSAO, FUNCIONARIO.DATA_DEMISSAO
+            FROM FUNCIONARIO
+            INNER JOIN FOLHA_PAGAMENTO ON FOLHA_PAGAMENTO.ID_FUNCIONARIO = FUNCIONARIO.ID_FUNCIONARIO WHERE FOLHA_PAGAMENTO.SALARIO_BRUTO > {salario}
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+
+    def status_agenciamento(self, status):
+        query_sql = f'''
+            SELECT CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
+            FROM AGENCIAMENTO_VEICULO
+            INNER JOIN VEICULO ON AGENCIAMENTO_VEICULO.ID_VEICULO = VEICULO.ID_VEICULO
+            INNER JOIN CLIENTE ON AGENCIAMENTO_VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE
+            WHERE AGENCIAMENTO_VEICULO.STATUS = '{status}'
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
