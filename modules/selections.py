@@ -266,3 +266,41 @@ class Selectdata:
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
+    
+    def clientes_e_veiculos(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, VEICULO.MODELO, VEICULO.MARCA, CLIENTE.TELEFONE
+            FROM CLIENTE
+            INNER JOIN VEICULO ON VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def produtos_e_fornecedores(self):
+        query_sql = '''
+            SELECT PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
+            FROM FORNECEDOR
+            INNER JOIN PRODUTO ON PRODUTO.ID_FORNECEDOR = FORNECEDOR.ID_FORNECEDOR;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def funcionario_dep_esp(self):
+        query = '''
+            SELECT FUNCIONARIO.NOME_FUNCIONARIO, FUNCIONARIO.DATA_ADMISSAO, DEPARTAMENTO.NOME_DEPARTAMENTO, ESPECIALIDADE.NOME_ESPECIALIDADE
+            FROM FUNCIONARIO
+            INNER JOIN DEPARTAMENTO ON DEPARTAMENTO.ID_DEPARTAMENTO = FUNCIONARIO.ID_DEPARTAMENTO
+            INNER JOIN ESPECIALIDADE ON ESPECIALIDADE.ID_ESPECIALIDADE = FUNCIONARIO.ID_ESPECIALIDADE;
+        '''
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+    
+    def os_cliente_veiculo(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, VEICULO.MODELO, VEICULO.MARCA, ORDEM_SERVICO.DATA_INICIO, ORDEM_SERVICO.DATA_CONCLUSAO, ORDEM_SERVICO.TEMPO_TOTAL_REPARO, ORDEM_SERVICO.VALOR_TOTAL
+            FROM ORDEM_SERVICO
+            INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = ORDEM_SERVICO.ID_CLIENTE
+            INNER JOIN VEICULO ON VEICULO.ID_VEICULO = ORDEM_SERVICO.ID_VEICULO;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
