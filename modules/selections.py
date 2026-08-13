@@ -304,3 +304,37 @@ class Selectdata:
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
+    
+    def pagamento_os(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, ORDEM_SERVICO.DATA_INICIO, ORDEM_SERVICO.TEMPO_TOTAL_REPARO, ORDEM_SERVICO.DESC_REPARO, PAGAMENTO.METODO_PAGAMENTO, ORDEM_SERVICO.VALOR_TOTAL
+            FROM PAGAMENTO
+            INNER JOIN ORDEM_SERVICO ON ORDEM_SERVICO.ID_OS = PAGAMENTO.ID_OS
+            INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = PAGAMENTO.ID_CLIENTE;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def pagamento_produto(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, 
+            PAGAMENTO.DATA_PAGAMENTO, PRODUTO.PRECO_UNITARIO, PRODUTO.QUANTIDADE, PRODUTO.PRECO_TOTAL, PAGAMENTO.STATUS_PAGAMENTO, PAGAMENTO.METODO_PAGAMENTO
+            FROM PAGAMENTO
+            INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = PAGAMENTO.ID_CLIENTE
+            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = PAGAMENTO.ID_PRODUTO
+            INNER JOIN FORNECEDOR ON FORNECEDOR.ID_FORNECEDOR = PRODUTO.ID_FORNECEDOR;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def atendimento_ao_cliente(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, ATENDIMENTO.DATA_ATENDIMENTO, 
+            FUNCIONARIO.NOME_FUNCIONARIO
+            FROM ATENDIMENTO
+            INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = ATENDIMENTO.ID_CLIENTE
+            INNER JOIN FUNCIONARIO ON FUNCIONARIO.ID_FUNCIONARIO = ATENDIMENTO.ID_FUNCIONARIO
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+        
