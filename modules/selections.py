@@ -337,4 +337,51 @@ class Selectdata:
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
+    
+    def produtos_estoque(self):
+        query_sql = '''
+            SELECT PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.VALIDADE_DIAS
+            FROM ESTOQUE
+            INNER JOIN FORNECEDOR ON FORNECEDOR.ID_FORNECEDOR = ESTOQUE.ID_FORNECEDOR
+            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = ESTOQUE.ID_PRODUTO;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def dados_fp(self):
+        query_sql = '''
+            SELECT FUNCIONARIO.NOME_FUNCIONARIO, FUNCIONARIO.DATA_ADMISSAO, 
+            FOLHA_PAGAMENTO.MES_REFERENCIA, FOLHA_PAGAMENTO.SALARIO_BRUTO, FOLHA_PAGAMENTO.DESCONTOS, 
+            FOLHA_PAGAMENTO.SALARIO_LIQUIDO, FOLHA_PAGAMENTO.STATUS_PAGAMENTO,
+            CASE
+                WHEN FUNCIONARIO.DATA_DEMISSAO IS NULL THEN 'Ativo na empresa'
+                ELSE 'Desligado'
+            END AS FUN_ON_OFF
+            FROM FOLHA_PAGAMENTO
+            INNER JOIN FUNCIONARIO ON FUNCIONARIO.ID_FUNCIONARIO = FOLHA_PAGAMENTO.ID_FUNCIONARIO;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def cr_pagamento(self):
+        query_sql = '''
+            SELECT PAGAMENTO.DATA_PAGAMENTO, PAGAMENTO.VALOR_TOTAL, PAGAMENTO.PARCELAS, PAGAMENTO.REFERENCIA,
+            CONTA_RECEBER.NUMERO_PARCELA, CONTA_RECEBER.VALOR_PARCELA, CONTA_RECEBER.DATA_VENCIMENTO_RECEBER,
+            CONTA_RECEBER.STATUS
+            FROM CONTA_RECEBER
+            INNER JOIN PAGAMENTO ON PAGAMENTO.ID_PAGAMENTO = CONTA_RECEBER.ID_PAGAMENTO
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
         
+    def qtde_veiculo_cliente(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
+            COUNT(VEICULO.ID_VEICULO) AS QTDE_VEICULOS
+            FROM CLIENTE
+            LEFT JOIN VEICULO ON CLIENTE.ID_CLIENTE = VEICULO.ID_CLIENTE
+            GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE
+            ORDER BY QTDE_VEICULOS DESC;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
