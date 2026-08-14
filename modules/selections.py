@@ -385,3 +385,29 @@ class Selectdata:
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
+    
+    def os_pcliente(self):
+        query_sql = '''
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
+            COUNT(ORDEM_SERVICO.ID_OS) AS QTDE_OS
+            FROM CLIENTE
+            LEFT JOIN ORDEM_SERVICO ON CLIENTE.ID_CLIENTE = ORDEM_SERVICO.ID_CLIENTE
+            GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE
+            ORDER BY QTDE_OS DESC;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+    
+    def total_pagamentos_metodo(self, metodo):
+        query_sql = f'''
+            SELECT PAGAMENTO.METODO_PAGAMENTO,
+            COUNT (*) AS TOTAL_PAGAMENTOS,
+            SUM (VALOR_TOTAL) AS VALOR_TOTAL_AGRUPADO
+            FROM PAGAMENTO
+            WHERE METODO_PAGAMENTO = '{metodo}'
+            GROUP BY METODO_PAGAMENTO
+            ORDER BY VALOR_TOTAL_AGRUPADO DESC;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
+        
