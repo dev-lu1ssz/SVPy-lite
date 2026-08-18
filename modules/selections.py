@@ -1,5 +1,4 @@
 import sqlite3
-
 class Selectdata:
     def __init__(self, conexao):
         self.conexao = conexao
@@ -410,4 +409,15 @@ class Selectdata:
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
-        
+    
+    def total_produtos_categoria(self, categoria):
+        query_sql = f'''
+            SELECT CATEGORIA,
+            COUNT (*) AS TOTAL_PRODUTOS,
+            SUM (PRECO_UNITARIO) AS PRECO_TOTAL
+            FROM PRODUTO 
+            WHERE CATEGORIA = '{categoria}'
+            GROUP BY CATEGORIA;
+        '''
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchall()
