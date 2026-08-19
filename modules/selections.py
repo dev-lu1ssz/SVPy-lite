@@ -1,4 +1,5 @@
 import sqlite3
+from tabulate import tabulate
 class Selectdata:
     def __init__(self, conexao):
         self.conexao = conexao
@@ -59,7 +60,7 @@ class Selectdata:
             params.append(id_cliente)
 
         self.cursor.execute(query_sql, tuple(params))
-        return self.cursor.fetchall()
+        return print(tabulate(self.cursor.fetchall(), headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'ENDEREÇO'], tablefmt='grid'))
     
     def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False, faixa_dados=None):
         params = []
