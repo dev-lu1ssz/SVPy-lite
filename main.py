@@ -5,7 +5,12 @@ import modules.menu as menu
 import os
 from tabulate import tabulate
 import sqlite3
+import time
 
+def writer(a):
+    for i in a:
+        print(i, flush=True, end='')
+        time.sleep(0.02)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database', 'SV-Py_lite_updated.db')
@@ -45,16 +50,94 @@ try:
                 while True:
                     print('\nSelecione uma das opções - Digite "back" para voltar ao menu principal')
                     comando = str(input('SVPy-lite/commands > '))
-                    lista_comandos = ['info_clinete', 'clinete_ult_os', 'cliente_pay', 'cliente_agen', 'atendimento', 'qtde_veiculos', 'back']
+                    lista_comandos = ['info_cliente', 'cliente_ult_os', 'info_pagamento', 'cliente_agen', 'atendimento', 'qtde_veiculos', 'back', 'menu']
                     
                     if comando.lower() not in lista_comandos:
                         print('\nOpção inválida! Digite um dos comandos disponíveis.')
                     if comando.lower() == 'back':
                         break
-                    if comando.lower() == 'info_cliente':
-                        select.client_info()
-                        
+                    elif comando.lower() == 'menu':
+                        menu.menu_clientes()
+                    elif comando.lower() == 'info_cliente':
+                        quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                        if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
+                            while True:
+                                registro = input('\nDigite o número de registro do cliente (ID) > ')
+                                if registro:
+                                    writer('\nConsultando banco de dados............\n\n')
+                                    select.client_info(eval(registro))
+                                    break
+                                else:
+                                    print('Campo vazio ou o valor está inválido')
+                        else:
+                            writer('\nConsultando banco de dados............\n\n')
+                            select.client_info()
+                    elif comando.lower() == 'cliente_ult_os':
+                        quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                        if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
+                            while True:
+                                print('\n' + tabulate([('id', 'Filtrar usuário pelo número de registro'), 
+                                                ('ultimo', 'Trazer apenas a última OS registrada'), 
+                                                ('combinado', 'Combina os dois filtros de consulta')], 
+                                               headers=['Filtro', 'Descrição'], tablefmt='grid'))
+                                
+                                opcao_filtro = str(input('\nEsolha o filtro que deseja utilizar > '))
 
+                                if opcao_filtro.lower() == 'id':
+                                    registro = input('Digite o número de registro do cliente (ID) > ')
+                                    if registro:
+                                        writer('\nConsulta o banco de dados............\n\n')
+                                        select.cliente_ult_os(id_cliente=eval(registro))
+                                        break
+                                    else:
+                                        print('Campo vazio ou o valor está inválido')
+                                
+                                elif opcao_filtro.lower() == 'ultimo':
+                                    writer('\nConsulta o banco de dados............\n\n')
+                                    select.cliente_ult_os(apenas_ultimo=True)
+                                    break
+                                
+                                elif opcao_filtro.lower() == 'combinado':
+                                    registro = input('Digite o número de registro do cliente (ID) > ')
+                                    if registro:
+                                        writer('\nConsulta o banco de dados............\n\n')
+                                        select.cliente_ult_os(id_cliente=eval(registro), apenas_ultimo=True)
+                                        break
+                                    else:
+                                        print('Campo vazio ou o valor está inválido')
+
+                        elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n'):
+                            writer('\nConsulta o banco de dados............\n\n')
+                            select.cliente_ult_os()
+                    elif comando.lower() == 'info_pagamento':
+                        quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                        if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
+                                while True:
+                                    print('\n' + tabulate([('id', 'Filtrar usuário pelo número de registro'), 
+                                                    ('situação', 'Filtra pela situação do pagamento (Pendente, Realizado)')], 
+                                                    headers=['Filtro', 'Descrição'], tablefmt='grid'))
+                                    
+                                    opcao_filtro = str(input('\nEscolha o filtro que deseja utilizar > '))
+                                    
+                                    if opcao_filtro.lower() == 'id':
+                                        registro = input('Digite o número de registro do cliente (ID) > ')
+                                        if registro:
+                                            writer('\nConsulta o banco de dados............\n\n')
+                                            select.info_pagamento(id_cliente=eval(registro))
+                                            break
+                                        else:
+                                            print('Campo vazio ou o valor está inválido')
+                                    elif opcao_filtro.lower() in ('situação', 'situacao'):
+                                        situacao = str(input('Deseja filtrar qual situação ? [Pendente/Pago]: '))
+                                        
+                                        if situacao.lower() in ('pendente', 'pago'):
+                                            writer('\nConsulta o banco de dados............\n\n')
+                                            select.info_pagamento(sitaucao=situacao)
+                        
+                        elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n'):
+                            writer('\nConsulta o banco de dados............\n\n')
+                            select.info_pagamento()
+        
         except ValueError:
             print('O valor digitado é inválido!')
 
