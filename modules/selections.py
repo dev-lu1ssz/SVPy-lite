@@ -80,19 +80,20 @@ class Selectdata:
         if apenas_ultimo:
             query_sql += adc_ultimo
             self.cursor.execute(query_sql, params)
-            return self.cursor.fetchone()
+            return print(tabulate([self.cursor.fetchone()]  , headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid'))
         else:
             self.cursor.execute(query_sql, params)
-            return self.cursor.fetchall()
+            return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid'))
     
     def info_pagamento(self, id_cliente=None, sitaucao=None):
         params = []
         query_sql = '''
-            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CONTA_RECEBER.VALOR_PAGAMENTO, PAGAMENTO.METODO_PAGAMENTO, CONTA_RECEBER.STATUS
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PAGAMENTO.VALOR_TOTAL, 
+            PAGAMENTO.METODO_PAGAMENTO, PAGAMENTO.STATUS_PAGAMENTO
             FROM CLIENTE
-            INNER JOIN PAGAMENTO ON PAGAMENTO.ID_CLIENTE = CLIENTE.ID_CLIENTE
-            INNER JOIN CONTA_RECEBER ON CONTA_RECEBER.ID_PAGAMENTO = PAGAMENTO.ID_PAGAMENTO
-        '''
+            INNER JOIN PAGAMENTO ON PAGAMENTO.ID_CLIENTE = CLIENTE.ID_CLIENTE 
+            
+            '''
         conditions = []
 
         if id_cliente is not None:
@@ -100,14 +101,14 @@ class Selectdata:
             params.append(id_cliente)
 
         if sitaucao is not None:
-            conditions.append('CONTA_RECEBER.STATUS = ?')
+            conditions.append('PAGAMENTO.STATUS_PAGAMENTO = ?')
             params.append(sitaucao)
 
         if conditions:
             query_sql += '\nWHERE ' + ' AND '.join(conditions)
 
         self.cursor.execute(query_sql, params)
-        return self.cursor.fetchall()
+        return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid'))
 
     def consulta_carro(self, placa=None):
         query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
