@@ -1,5 +1,7 @@
 import sqlite3
 from tabulate import tabulate
+from modules.colors import Colors
+colors = Colors()
 class Selectdata:
     def __init__(self, conexao):
         self.conexao = conexao
@@ -60,7 +62,11 @@ class Selectdata:
             params.append(id_cliente)
 
         self.cursor.execute(query_sql, tuple(params))
-        return print(tabulate(self.cursor.fetchall(), headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'ENDEREÇO'], tablefmt='grid'))
+        saida = self.cursor.fetchall()
+        if saida:
+            return print(tabulate(saida, headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'ENDEREÇO'], tablefmt='grid'))
+        else:
+            return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
     def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False, faixa_dados=None):
         params = []
@@ -257,16 +263,28 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
 
-    def status_agenciamento(self, status):
+    def status_agenciamento(self, status=None, id_cliente=None):
         query_sql = f'''
-            SELECT CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
+            SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
             FROM AGENCIAMENTO_VEICULO
             INNER JOIN VEICULO ON AGENCIAMENTO_VEICULO.ID_VEICULO = VEICULO.ID_VEICULO
             INNER JOIN CLIENTE ON AGENCIAMENTO_VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE
-            WHERE AGENCIAMENTO_VEICULO.STATUS = '{status}'
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
+        params = []
+        if status is not None:
+            query_sql += f' WHERE AGENCIAMENTO_VEICULO.STATUS = ?'
+            params.append(status)
+            
+        if id_cliente is not None:
+            query_sql += f' WHERE CLIENTE.ID_CLIENTE = ?'
+            params.append(id_cliente)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        if saida:
+            return print(tabulate(saida, headers=['ID', 'CLIENTE', 'MODELO DO VEÍCULO', 'DATA DE AGEN.', 'STATUS AGEN.'], tablefmt='grid'))
+        else:
+            return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
     def clientes_e_veiculos(self):
         query_sql = '''
