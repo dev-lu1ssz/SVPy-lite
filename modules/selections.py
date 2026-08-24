@@ -50,14 +50,14 @@ class Selectdata:
         dados = self.cursor.fetchall()
         return colunas, dados
     
-    def nome_cliente(self, id_cliente):
+    def nome_cliente(self, id_cliente): # Mostra o nome do cliente usando o ID como filtro
         query_sql = f'''
             SELECT NOME_CLIENTE FROM CLIENTE WHERE ID_CLIENTE = {id_cliente}
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchone()
     
-    def funcionarios(self, id_funcionario):
+    def funcionarios(self, id_funcionario): # Mostra o nome do funcionário usando o ID como filtro
         query_sql = f'''
             SELECT NOME_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = {id_funcionario}
         '''
