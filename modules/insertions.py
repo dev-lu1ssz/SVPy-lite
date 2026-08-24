@@ -187,13 +187,13 @@ class InData:
         )
         self.conexao.commit()
 
-    def agenciamento_veiculo(self, id_cliente, id_veiculo, data_agenciamento, valor, prazo_dias, comissao, status):
+    def agenciamento_veiculo(self, id_cliente, id_veiculo, data_inicio_agenciamento, data_fim_agenciamento, valor, prazo_dias, comissao, status):
         self.cursor.execute(
             '''
-                INSERT INTO AGENCIAMENTO_VEICULO(ID_CLIENTE, ID_VEICULO, DATA_AGENCIAMENTO, VALOR, PRAZO_DIAS, COMISSAO, STATUS) VALUES
-                (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO AGENCIAMENTO_VEICULO(ID_CLIENTE, ID_VEICULO, DATA_INICIO_AGENCIAMENTO, DATA_FIM_AGENCIAMENTO, VALOR, PRAZO_DIAS, COMISSAO, STATUS) VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?)
             ''',
-            (id_cliente, id_veiculo, data_agenciamento, valor, prazo_dias, comissao, status),
+            (id_cliente, id_veiculo, data_inicio_agenciamento, data_fim_agenciamento, valor, prazo_dias, comissao, status),
         )
         self.conexao.commit()
         

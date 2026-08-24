@@ -8,9 +8,8 @@ from modules.insertions import InData
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database', 'SV-Py_lite_updated.db')
 
-if not os.path.exists(DB_PATH):
-    print('Base de dados não encontrada. Criando base de dados...')
-    criar_banco()
+print('Criando banco de dados para a sequência de testes...')
+criar_banco()
 
 conexao = sqlite3.connect(DB_PATH)
 conexao.execute('PRAGMA foreign_keys = on')
@@ -123,6 +122,7 @@ insert.agenciamento_veiculo(
     ultimo_cliente,
     ultimo_veiculo,
     '2026-08-05',
+    '2026-08-12',
     300.0,
     7,
     30.0,
