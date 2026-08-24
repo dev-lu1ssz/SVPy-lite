@@ -48,16 +48,20 @@ try:
             elif opcao == 1:
                 writer(f'{color.NEGATIVE}\nEscolha uma categoria para as consultas:{color.END}\n\n')
                 print(tabulate([('clientes', 'Consultas para trazer as principais informações sobre os cliente'),
-                                ('veiculos', 'Consultas para trazer as principais informações sobre os veículos dos clientes')],
+                                ('veiculos', 'Consultas para trazer as principais informações sobre os veículos dos clientes'),
+                                ('funcionarios', 'Consultas para trazer as principais informações sobre os funcionários da empresa'),
+                                ('produtos', 'Consultas para trazer as principais informações sobre os produtos')],
                                 headers=['Categoria', 'Descrição'], tablefmt='grid'))
                 
-                categoria = str(input(f'{color.NEGATIVE}SVPy-lite >{color.END} '))
-                categorias_disponiveis = ['clientes', 'veiculos']
+                categoria = str(input(f'\n{color.NEGATIVE}SVPy-lite >{color.END} '))
+                categorias_disponiveis = ['clientes', 'veiculos', 'funcionarios', 'produtos']
+                
                 if categoria.lower() not in categorias_disponiveis:
                     print(f'\n{color.LIGHT_RED}Escolha uma categoria que esteja disponível na lista{color.END}\n')
                 
                 elif categoria.lower() == 'clientes':
-                    print('\nMostrando o menu de comandos de clientes')
+                    writer(f'\n{color.GREEN}Mostrando o menu de comandos de clientes{color.END}\n')
+                    time.sleep(1)
                     menu.menu_clientes()
                     
                     while True:
@@ -206,8 +210,26 @@ try:
                         elif comando.lower() == 'qtde_veiculos':
                             writer(f'{color.LIGHT_GREEN}\nConsultando o banco de dados..........{color.END}\n\n')
                             select.qtde_veiculo_cliente()
-                
-            
+                elif categoria.lower() == 'veiculos':
+                    writer(f'\n{color.GREEN}Mostrando o menu de comandos de veículos{color.END}')
+                    time.sleep(1)
+                    menu.menu_veiculos()
+                    
+                elif categoria.lower() == 'funcionarios':
+                    writer(f'\n{color.GREEN}Mostrando o menu de comandos de funcionários{color.END}')
+                    time.sleep(1)
+                    menu.menu_funcionarios()
+                    
+                elif categoria.lower() == 'produtos':
+                    writer(f'\n{color.GREEN}Mostrando o menu de comandos dos produtos{color.END}')
+                    time.sleep(1)
+                    menu.menu_produtos()
+
+            elif opcao == 2:
+                print(f'\n{color.LIGHT_GREEN}Saindo do sistema SV-Py Lite...{color.END}\n')
+                conexao.close()
+                exit()
+
         except ValueError:
             print(f'{color.RED}O valor digitado é inválido!{color.END}')
 

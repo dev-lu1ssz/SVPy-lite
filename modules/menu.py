@@ -13,5 +13,25 @@ def menu_clientes():
     tabela = tabulate(lista_consulta_clientes, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
 
-if __name__ == '__main__':
-    menu_clientes()
+def menu_veiculos():
+    lista_consulta_veiculos = [('info_veiculo', 'Traz informações sobre os veículos que estão cadastrados no sistema'),
+                               ('ordem_servico', 'Traz informações sobre ordens de serviços realizadas')]
+    tabela = tabulate(lista_consulta_veiculos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
+    return print(f'\n{tabela}\n')
+
+def menu_funcionarios():
+    lista_consulta_funcionarios = [('funcionarios', 'Mostra informações de funcionários registrados no banco de dados (ativos e desligados)'),
+                                   ('func_especialidades', 'Mostra informações apenas de funcionários que possuem especialidades mecânicas'),
+                                   ('folha_pagamento', 'Mostra informações referente a folha de pagamento dos funcionários')]
+    tabela = tabulate(lista_consulta_funcionarios, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
+    return print(f'\n{tabela}\n')
+
+def menu_produtos():
+    lista_consulta_produtos = [('produtos', 'Mostra informações sobre produtos e fornecedores'),
+                               ('estoque_min', 'Consulta o estoque para saber qual produto atingiu a quantidade mínima'),
+                               ('compra_produto', 'Mostra informações úteis sobre produtos e a quantidade gasta na compra (R$)'),
+                               ('produtos_estoque', 'Mostra quais são os produtos que tem no estoque'),
+                               ('categoria', 'Mostra a quantidade de produtos separados por categorias'),
+                               ('fornecedor', 'Consulta informações da lista de fornecedores no banco de dados')]
+    tabela = tabulate(lista_consulta_produtos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='center')
+    return print(f'\n{tabela}\n')
