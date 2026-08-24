@@ -189,9 +189,13 @@ try:
                                 else:
                                     print(f'{color.LIGHT_RED}Opção de filtro inválida, escolha um dos filtros disponíveis{color.END}')
                         elif quest_filtro.lower() in ('não', 'nao', 'n', 'no'):
-                            writer('\nConsultando banco de dados............\n\n')
+                            writer(f'{color.LIGHT_GREEN}\nConsultando banco de dados............\n\n{color.END}')
                             select.atendimento_ao_cliente()
-        
+
+                    elif comando.lower() == 'qtde_veiculos':
+                        writer(f'{color.LIGHT_GREEN}\nConsultando o banco de dados..........{color.END}\n\n')
+                        select.qtde_veiculo_cliente()
+                        
         except ValueError:
             print(f'{color.RED}O valor digitado é inválido!{color.END}')
 

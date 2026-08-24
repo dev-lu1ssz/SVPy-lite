@@ -301,15 +301,26 @@ class Selectdata:
         else:
             return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def clientes_e_veiculos(self):
+    def clientes_e_veiculos(self, id_cliente=None):
         query_sql = '''
-            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, VEICULO.MODELO, VEICULO.MARCA, CLIENTE.TELEFONE
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE, VEICULO.MODELO, VEICULO.MARCA
             FROM CLIENTE
-            INNER JOIN VEICULO ON VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE;
+            INNER JOIN VEICULO ON VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE ;
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
-    
+        params = []
+        
+        if id_cliente is not None:
+            query_sql += 'WHERE CLIENTE.ID_CLIENTE = ?'
+            params.append(id_cliente)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'TELEFONE', 'MODELO DO VEICULO', 'MARCA DO VEICULO'], tablefmt='grid'))
+        else:
+            print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
+
     def produtos_e_fornecedores(self):
         query_sql = '''
             SELECT PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
@@ -430,11 +441,17 @@ class Selectdata:
             FROM CLIENTE
             LEFT JOIN VEICULO ON CLIENTE.ID_CLIENTE = VEICULO.ID_CLIENTE
             GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE
-            ORDER BY QTDE_VEICULOS DESC;
+            ORDER BY QTDE_VEICULOS DESC
         '''
+        
         self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
-    
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'QTDE VEICULOS'], tablefmt='grid'))
+        else:
+            print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
+
     def os_pcliente(self):
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
