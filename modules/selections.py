@@ -50,17 +50,19 @@ class Selectdata:
         dados = self.cursor.fetchall()
         return colunas, dados
     
-    def funcionarios(self, id_funcionario=None):
-        query_sql = '''
-            SELECT NOME_FUNCIONARIO FROM FUNCIONARIO 
+    def nome_cliente(self, id_cliente):
+        query_sql = f'''
+            SELECT NOME_CLIENTE FROM CLIENTE WHERE ID_CLIENTE = {id_cliente}
         '''
-        params = []
+        self.cursor.execute(query_sql)
+        return self.cursor.fetchone()
+    
+    def funcionarios(self, id_funcionario):
+        query_sql = f'''
+            SELECT NOME_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = {id_funcionario}
+        '''
         
-        if id_funcionario is not None:
-            query_sql += 'WHERE ID_FUNCIONARIO = ?'
-            params.append(id_funcionario)
-        
-        self.cursor.execute(query_sql, tuple(params))
+        self.cursor.execute(query_sql)
         return self.cursor.fetchone()
     
     def client_info(self, id_cliente=None):

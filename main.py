@@ -68,11 +68,12 @@ try:
                         if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                             while True:
                                 registro = input('\nDigite o número de registro do cliente (ID) > ')
-                                writer('\nConsultando banco de dados............\n\n')
+                                nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                writer(f'{color.LIGHT_GREEN}\nConsulta: Todas as informações do(a) cliente "{nome_cliente}" ..........{color.END}\n\n')
                                 select.client_info(eval(registro))
                                 break
                         else:
-                            writer('\nConsultando banco de dados............\n\n')
+                            writer(f'\n{color.LIGHT_GREEN}Consultando banco de dados............{color.END}\n\n')
                             select.client_info()
                     
                     elif comando.lower() == 'cliente_ult_os':
