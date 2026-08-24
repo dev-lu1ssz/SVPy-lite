@@ -31,19 +31,18 @@ try:
     conexao.execute('PRAGMA foreign_keys = on')
     select = Selectdata(conexao)
 
-    while opcao != 3:
+    while opcao != 2:
         try:
             print(f'\n{color.LIGHT_GREEN}Seja bem vindo ao seu Sistema de Gerenciamento de Banco de Dados da Speed-Veiculos montado com SQLite!{color.END}\n')
             print('Escolha uma das opções abaixo:')
             print('''
-                [1] - Ver o menu de comandos para consultas no BD
-                [2] - Adicionar dados a uma tabela
-                [3] - Sair
+                [1] - Ver o menu de comandos de consultas
+                [2] - Sair
             ''')
 
             opcao = int(input(f'{color.NEGATIVE}SVPy-lite >{color.END} '))
 
-            if opcao not in (1, 2, 3):
+            if opcao not in (1, 2):
                 print(f'{color.LIGHT_RED}\nOpção inválida! Digite uma opção entre 1 e 3.{color.END}')
             elif opcao == 1:
                 print('\nMostrando o menu de comandos de clientes')
