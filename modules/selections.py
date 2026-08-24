@@ -50,6 +50,19 @@ class Selectdata:
         dados = self.cursor.fetchall()
         return colunas, dados
     
+    def funcionarios(self, id_funcionario=None):
+        query_sql = '''
+            SELECT NOME_FUNCIONARIO FROM FUNCIONARIO 
+        '''
+        params = []
+        
+        if id_funcionario is not None:
+            query_sql += 'WHERE ID_FUNCIONARIO = ?'
+            params.append(id_funcionario)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        return self.cursor.fetchone()
+    
     def client_info(self, id_cliente=None):
         query_sql = '''
             SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
@@ -272,11 +285,11 @@ class Selectdata:
         '''
         params = []
         if status is not None:
-            query_sql += f' WHERE AGENCIAMENTO_VEICULO.STATUS = ?'
+            query_sql += ' WHERE AGENCIAMENTO_VEICULO.STATUS = ?'
             params.append(status)
             
         if id_cliente is not None:
-            query_sql += f' WHERE CLIENTE.ID_CLIENTE = ?'
+            query_sql += ' WHERE CLIENTE.ID_CLIENTE = ?'
             params.append(id_cliente)
         
         self.cursor.execute(query_sql, tuple(params))
@@ -346,7 +359,7 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
     
-    def atendimento_ao_cliente(self):
+    def atendimento_ao_cliente(self, id_funcionario=None, id_cliente=None):
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, ATENDIMENTO.DATA_ATENDIMENTO, 
             FUNCIONARIO.NOME_FUNCIONARIO
@@ -354,8 +367,23 @@ class Selectdata:
             INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = ATENDIMENTO.ID_CLIENTE
             INNER JOIN FUNCIONARIO ON FUNCIONARIO.ID_FUNCIONARIO = ATENDIMENTO.ID_FUNCIONARIO
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
+        params = []
+        
+        if id_funcionario is not None:
+            query_sql += ' WHERE FUNCIONARIO.ID_FUNCIONARIO = ?'
+            params.append(id_funcionario)
+        
+        if id_cliente is not None:
+            query_sql += ' WHERE CLIENTE.ID_CLIENTE = ?'
+            params.append(id_cliente)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'DATA DE ATENDIMENTO', 'FUNCIONÁRIO'], tablefmt='grid'))
+        else:
+            return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def produtos_estoque(self):
         query_sql = '''
