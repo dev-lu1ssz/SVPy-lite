@@ -267,7 +267,7 @@ try:
                                 select.consulta_carro()
                             
                         elif comando.lower() == 'ordem_servico':
-                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]:'))
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                             if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                                 while True:
                                     print('\n' + tabulate([('id_cliente', 'Filtrar OS solicitadas por clientes usando o número de registro'),
@@ -293,7 +293,7 @@ try:
                                     elif opcao_filtro.lower() == 'cpf':
                                         registro = input('\nDigite o CPF do cliente (Somente números) > ')
                                         writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas pelo(a) cliente dono do CPF "{registro}"..........{color.END}\n\n')
-                                        select.os_cliente_veiculo(cpf_cliente=eval(registro))
+                                        select.os_cliente_veiculo(cpf_cliente=registro)
                                         break
                                     
                                     elif opcao_filtro.lower() == 'modelo':
@@ -325,12 +325,39 @@ try:
                                         writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS que duraram por {registro} dias..........{color.END}\n\n')
                                         select.os_cliente_veiculo(tempo_reparo=registro)
                                         break
-                                    
+                        
+                            elif quest_filtro.lower() in ('nao', 'nn', 'n', 'no'):
+                                writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os veículos registrados no sistema..........{color.END}\n\n')
+                                select.os_cliente_veiculo()
+
                 elif categoria.lower() == 'funcionarios':
                     writer(f'\n{color.GREEN}Mostrando o menu de comandos de funcionários{color.END}')
                     time.sleep(1)
                     menu.menu_funcionarios()
                     
+                    while True:
+                        print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
+                        comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
+                        
+                        if comando.lower() == 'back':
+                            break
+                            
+                        elif comando.lower() == 'menu':
+                            menu.menu_funcionarios()
+                        
+                        lista_comandos_funcionarios = ['funcionarios', 'func_especialidades', 'folha_pagamento', 'menu', 'back']
+                        if comando.lower() not in lista_comandos_funcionarios:
+                            print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+                            
+                        if comando.lower() == 'funcionarios':
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                            if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
+                                print('oi')
+                            elif quest_filtro.lower() in ('nao', 'não', 'n', 'nn'):
+                                writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários registrados no sistema..........{color.END}\n\n')
+                                funcionarios = select.consulta_funcionarios()
+                                print(funcionarios.all())
+                                
                 elif categoria.lower() == 'produtos':
                     writer(f'\n{color.GREEN}Mostrando o menu de comandos dos produtos{color.END}')
                     time.sleep(1)

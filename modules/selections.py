@@ -183,9 +183,11 @@ class Selectdata:
     
     def consulta_funcionarios(self, id_funcionario=None, nome=None, id_departamento=None, id_especialidade=None):
         base_query = (
-            'SELECT ID_FUNCIONARIO, ID_DEPARTAMENTO, ID_ESPECIALIDADE, '
-            'NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO,  '
-            'FROM FUNCIONARIO'
+            'SELECT FUNCIONARIO.ID_FUNCIONARIO, FUNCIONARIO.NOME_FUNCIONARIO, DEPARTAMENTO.NOME_DEPARTAMENTO, ESPECIALIDADE.NOME_ESPECIALIDADE, '
+            'DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO  '
+            'FROM FUNCIONARIO '
+            'INNER JOIN DEPARTAMENTO ON FUNCIONARIO.ID_DEPARTAMENTO = DEPARTAMENTO.ID_DEPARTAMENTO '
+            'INNER JOIN ESPECIALIDADE ON FUNCIONARIO.ID_ESPECIALIDADE = ESPECIALIDADE.ID_ESPECIALIDADE'
         )
         params = []
         conditions = []
@@ -234,16 +236,16 @@ class Selectdata:
                 return self.cursor.fetchone() if single else self.cursor.fetchall()
 
             def all(self):
-                return self._build_and_exec()
+                return print(tabulate(self._build_and_exec(), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
 
             def ativos(self):
-                return self._build_and_exec('DATA_DEMISSAO IS NULL')
+                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
 
             def demitidos(self):
-                return self._build_and_exec('DATA_DEMISSAO IS NOT NULL')
+                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
 
             def by_id(self, idv):
-                return self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True)
+                return print(tabulate(self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
@@ -396,7 +398,7 @@ class Selectdata:
         if saida:
             tabela = tabulate(saida, headers=['CLIENTE', 'CPF', 'MODELO DO VEÍCULO', 'MARCA DO VEÍCULO', 'DATA INÍCIO', 'DATA CONCLUSÃO', 'TEMPO DE REPARO (DIAS)', 'VALOR TOTAL (R$)'],
                             tablefmt='grid', stralign='left')
-            return tabela
+            return print(f'{tabela}\n')
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
