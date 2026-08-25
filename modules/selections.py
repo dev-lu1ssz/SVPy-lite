@@ -131,7 +131,7 @@ class Selectdata:
         self.cursor.execute(query_sql, params)
         return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid'))
 
-    def consulta_carro(self, placa=None):
+    def consulta_carro(self, placa=None, modelo=None, marca=None):
         query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
         params = []
         
@@ -139,8 +139,21 @@ class Selectdata:
             query_sql += ' WHERE PLACA = ?'
             params.append(placa)
         
+        if modelo is not None:
+            query_sql += ' WHERE MODELO = ?'
+            params.append(modelo)
+        
+        if marca is not None:
+            query_sql += ' WHERE MARCA = ?'
+            params.append(marca)
+
         self.cursor.execute(query_sql, tuple(params))
-        return self.cursor.fetchall()
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            return print(tabulate(saida, headers=['ID', 'PLACA', 'MODELO', 'MARCA', 'CHASSIS'], tablefmt='grid') + '\n')
+        else:
+            return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def consulta_produto(self, categoria=None):
         query_sql = 'SELECT ID_PRODUTO, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO, PRECO_TOTAL FROM PRODUTO '
@@ -340,16 +353,53 @@ class Selectdata:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def os_cliente_veiculo(self):
+    def os_cliente_veiculo(self, id_cliente=None, cpf_cliente=None, modelo=None, marca=None, data_inicio=None, data_conclusao=None, tempo_reparo=None):
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, VEICULO.MODELO, VEICULO.MARCA, ORDEM_SERVICO.DATA_INICIO, ORDEM_SERVICO.DATA_CONCLUSAO, ORDEM_SERVICO.TEMPO_TOTAL_REPARO, ORDEM_SERVICO.VALOR_TOTAL
             FROM ORDEM_SERVICO
             INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = ORDEM_SERVICO.ID_CLIENTE
-            INNER JOIN VEICULO ON VEICULO.ID_VEICULO = ORDEM_SERVICO.ID_VEICULO;
+            INNER JOIN VEICULO ON VEICULO.ID_VEICULO = ORDEM_SERVICO.ID_VEICULO
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
-    
+        params = []
+        
+        if id_cliente is not None:
+            query_sql += ' WHERE CLIENTE.ID_CLIENTE = ?'
+            params.append(id_cliente)
+
+        if cpf_cliente is not None:
+            query_sql += ' WHERE CLIENTE.CPF_CLIENTE = ?'
+            params.append(cpf_cliente)
+
+        if modelo is not None:
+            query_sql += ' WHERE VEICULO.MODELO = ?'
+            params.append(modelo)
+
+        if marca is not None:
+            query_sql += ' WHERE VEICULO.MARCA = ?'
+            params.append(marca)
+
+        if data_inicio is not None:
+            query_sql += ' WHERE ORDEM_SERVICO.DATA_INICIO = ?'
+            params.append(data_inicio)
+
+        if data_conclusao is not None:
+            query_sql += ' WHERE ORDEM_SERVICO.DATA_CONCLUSAO = ?'
+            params.append(data_conclusao)
+
+        if tempo_reparo is not None:
+            query_sql += ' WHERE ORDEM_SERVICO.TEMPO_REPARO = ?'
+            params.append(tempo_reparo)
+
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            tabela = tabulate(saida, headers=['CLIENTE', 'CPF', 'MODELO DO VEÍCULO', 'MARCA DO VEÍCULO', 'DATA INÍCIO', 'DATA CONCLUSÃO', 'TEMPO DE REPARO (DIAS)', 'VALOR TOTAL (R$)'],
+                            tablefmt='grid', stralign='left')
+            return tabela
+        else:
+            return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
+
     def pagamento_os(self):
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, ORDEM_SERVICO.DATA_INICIO, ORDEM_SERVICO.TEMPO_TOTAL_REPARO, ORDEM_SERVICO.DESC_REPARO, PAGAMENTO.METODO_PAGAMENTO, ORDEM_SERVICO.VALOR_TOTAL

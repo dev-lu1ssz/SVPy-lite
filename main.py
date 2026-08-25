@@ -46,14 +46,10 @@ try:
                 print(f'{color.LIGHT_RED}\nOpção inválida! Digite uma opção entre 1 e 2.{color.END}')
             
             elif opcao == 1:
-                writer(f'{color.NEGATIVE}\nEscolha uma categoria para as consultas:{color.END}\n\n')
-                print(tabulate([('clientes', 'Consultas para trazer as principais informações sobre os cliente'),
-                                ('veiculos', 'Consultas para trazer as principais informações sobre os veículos dos clientes'),
-                                ('funcionarios', 'Consultas para trazer as principais informações sobre os funcionários da empresa'),
-                                ('produtos', 'Consultas para trazer as principais informações sobre os produtos')],
-                                headers=['Categoria', 'Descrição'], tablefmt='grid'))
+                writer(f'{color.NEGATIVE}\nEscolha uma categoria para as consultas:{color.END}\n')
+                menu.categorias()
                 
-                categoria = str(input(f'\n{color.NEGATIVE}SVPy-lite >{color.END} '))
+                categoria = str(input(f'{color.NEGATIVE}SVPy-lite >{color.END} '))
                 categorias_disponiveis = ['clientes', 'veiculos', 'funcionarios', 'produtos']
                 
                 if categoria.lower() not in categorias_disponiveis:
@@ -84,11 +80,11 @@ try:
                                 while True:
                                     registro = input('\nDigite o número de registro do cliente (ID) > ')
                                     nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
-                                    writer(f'{color.LIGHT_GREEN}\nConsulta: Todas as informações do(a) cliente "{nome_cliente}" ..........{color.END}\n\n')
+                                    writer(f'{color.LIGHT_GREEN}\nConsulta: Cadastro do(a) cliente "{nome_cliente}" ..........{color.END}\n\n')
                                     select.client_info(eval(registro))
                                     break
                             else:
-                                writer(f'\n{color.LIGHT_GREEN}Consultando banco de dados............{color.END}\n\n')
+                                writer(f'\n{color.LIGHT_GREEN}Consulta: Cadastro de todos os clientes............{color.END}\n\n')
                                 select.client_info()
                         
                         elif comando.lower() == 'cliente_ult_os':
@@ -104,18 +100,20 @@ try:
 
                                     if opcao_filtro.lower() == 'id':
                                         registro = input('Digite o número de registro do cliente (ID) > ')
-                                        writer('\nConsultando o banco de dados............\n\n')
+                                        nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                        writer(f'\nConsulta: Todas OS solicitadas pelo(a) cliente "{nome_cliente}"............\n\n')
                                         select.cliente_ult_os(id_cliente=eval(registro))
                                         break
                                     
                                     elif opcao_filtro.lower() == 'ultimo':
-                                        writer('\nConsultando o banco de dados............\n\n')
+                                        writer('\nConsulta: Última OS registrada no sistema............\n\n')
                                         select.cliente_ult_os(apenas_ultimo=True)
                                         break
                                     
                                     elif opcao_filtro.lower() == 'combinado':
                                         registro = input('Digite o número de registro do cliente (ID) > ')
-                                        writer('\nConsultando o banco de dados............\n\n')
+                                        nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                        writer(f'\nConsulta: Última OS solicitada pelo(a) cliente "{nome_cliente}"............\n\n')
                                         select.cliente_ult_os(id_cliente=eval(registro), apenas_ultimo=True)
                                         break
 
@@ -124,7 +122,7 @@ try:
                                 select.cliente_ult_os()
                         
                         elif comando.lower() == 'info_pagamento':
-                            quest_filtro = str(input(f'{color.NEGATIVE}Deseja realizar uma consulta com filtro ? [S/N]:{color.END} '))
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                             if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                                     while True:
                                         print('\n' + tabulate([('id', 'Filtrar usuário pelo número de registro'), 
@@ -135,14 +133,15 @@ try:
                                         
                                         if opcao_filtro.lower() == 'id':
                                             registro = input('Digite o número de registro do cliente (ID) > ')
-                                            writer('\nConsultando o banco de dados............\n\n')
+                                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                            writer(f'\nConsulta: Todos os pagamentos realizados pelo cliente "{nome_cliente}"............\n\n')
                                             select.info_pagamento(id_cliente=eval(registro))
                                             break
                                         
                                         elif opcao_filtro.lower() in ('situação', 'situacao'):
                                             situacao = str(input('Deseja filtrar qual situação ? [Pendente/Pago]: '))
                                             if situacao.lower() in ('pendente', 'pago'):
-                                                writer('\nConsultando o banco de dados............\n\n')
+                                                writer(f'\nConsulta: Todos os pagamentos com a situação "{situacao}"............\n\n')
                                                 select.info_pagamento(sitaucao=situacao)
                                                 break
                                             else:
@@ -153,7 +152,7 @@ try:
                                 select.info_pagamento()
                         
                         elif comando.lower() == 'cliente_agenciamento':
-                            quest_filtro = str(input(f'{color.NEGATIVE}Deseja realizar uma consulta com filtro ? [S/N]:{color.END} '))
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                             if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                                 while True:
                                     print('\n' + tabulate([('id', 'Filtrar pelo número de registro do cliente'),
@@ -162,21 +161,22 @@ try:
                                     opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
                                     if opcao_filtro.lower() == 'id':
                                         registro = input('Digite o número de registro do cliente (ID) > ')
-                                        writer('\nConsultando o banco de dados............\n\n')
+                                        nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                        writer(f'\nConsulta: Todo agenciamento solicitado pelo(a) cliente "{nome_cliente}"............\n\n')
                                         select.status_agenciamento(id_cliente=eval(registro))
                                         break
                                     
                                     elif opcao_filtro.lower() == 'status':
                                         status = str(input('Deseja filtrar qual situação ? [Pendente/Vendido]: '))
                                         if status.lower() in ('pendente', 'pago'):
-                                            writer('\nConsultando o banco de dados............\n\n')
+                                            writer(f'\nConsulta: Todos os agenciamento que possuem o status "{status}"............\n\n')
                                             select.status_agenciamento(status=status)
                                             break
                                         else:
                                             print(f'{color.RED}O valor digitado é inválido! Por favor digite apenas um dos valores (Pendente/Vendido){color.END}')
                                     
                             elif quest_filtro.lower() in ('não', 'nao', 'nn', 'n', 'no'):
-                                writer('\nConsultando o banco de dados............\n\n')
+                                writer('\nConsulta: Todos os agenciamentos que foram solicitados............\n\n')
                                 select.status_agenciamento()
 
                         elif comando.lower() == 'atendimento':
@@ -190,7 +190,8 @@ try:
                                     
                                     if opcao_filtro == 'id_cliente':
                                         registro = input('Digite o número de registro do cliente (ID) > ')
-                                        writer('\nConsultando o banco de dados............\n\n')
+                                        nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                        writer(f'\nConsulta: Todos os atendimentos realizados para o cliente "{nome_cliente}"............\n\n')
                                         select.atendimento_ao_cliente(id_cliente=eval(registro))
                                         break
                                     
@@ -204,17 +205,127 @@ try:
                                     else:
                                         print(f'{color.LIGHT_RED}Opção de filtro inválida, escolha um dos filtros disponíveis{color.END}')
                             elif quest_filtro.lower() in ('não', 'nao', 'n', 'no'):
-                                writer(f'{color.LIGHT_GREEN}\nConsultando banco de dados............\n\n{color.END}')
+                                writer(f'{color.LIGHT_GREEN}\nConsulta: Todos os atendimentos realizados............\n\n{color.END}')
                                 select.atendimento_ao_cliente()
 
                         elif comando.lower() == 'qtde_veiculos':
                             writer(f'{color.LIGHT_GREEN}\nConsultando o banco de dados..........{color.END}\n\n')
                             select.qtde_veiculo_cliente()
+
                 elif categoria.lower() == 'veiculos':
                     writer(f'\n{color.GREEN}Mostrando o menu de comandos de veículos{color.END}')
                     time.sleep(1)
                     menu.menu_veiculos()
                     
+                    while True:
+                        print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
+                        comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
+                        lista_comandos = ['info_veiculo', 'ordem_servico', 'back', 'menu']
+                        if comando.lower() not in lista_comandos:
+                            print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
+                        
+                        if comando.lower() == 'back':
+                            break
+                        
+                        elif comando.lower() == 'menu':
+                            menu.menu_veiculos()
+                            
+                        elif comando.lower() == 'info_veiculo':
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                            if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
+                                while True:
+                                    print(f'\n{tabulate([("placa", "Utiliza a placa do veículo como filtro"),
+                                            ("marca", "Retorna todos os veículos de uma marca específica"),
+                                            ("modelo", "Retorna todos os veículos de um modelo específico")], headers=["Filtro", "Descrição"], tablefmt="grid")}\n')
+                                    
+                                    opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                                    lista_filtros_veiculos = ['placa', 'marca', 'modelo']
+                                    
+                                    if opcao_filtro not in lista_filtros_veiculos:
+                                        print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+                                    
+                                    if opcao_filtro.lower() == 'placa':
+                                        placa = input('\nDigite a placa do veículo > ').upper()
+                                        writer(f'{color.LIGHT_GREEN}\nConsulta: Veiculo com a placa "{placa}"..........{color.END}\n\n')
+                                        select.consulta_carro(placa=placa)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'marca':
+                                        marca = str(input('\nDigite a marca do veículo > ')).capitalize()
+                                        writer(f'\nConsulta: Todos os veículos da marca "{marca}"..........{color.END}\n\n')
+                                        select.consulta_carro(marca=marca)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'modelo':
+                                        modelo = str(input('\nDigite o modelo do veículo > ')).capitalize()
+                                        writer(f'\nConsulta: Todos os veículos do modelo "{modelo}"..........{color.END}\n\n')
+                                        select.consulta_carro(modelo=modelo)
+                                        break
+                                
+                            elif quest_filtro.lower() in ('nao', 'nn', 'n', 'no'):
+                                writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os veículos registrados no sistema..........{color.END}\n\n')
+                                select.consulta_carro()
+                            
+                        elif comando.lower() == 'ordem_servico':
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]:'))
+                            if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
+                                while True:
+                                    print('\n' + tabulate([('id_cliente', 'Filtrar OS solicitadas por clientes usando o número de registro'),
+                                                            ('cpf', 'Filtrar OS solicitadas por clientes usando o CPF'),
+                                                            ('modelo', 'Filtrar pelo modelo do veículo'),
+                                                            ('marca', 'Filtrar pela marca do veículo'),
+                                                            ('inicio', 'Filtrar pela data de início da OS'),
+                                                            ('conclusao', 'Filtrar pela data de conclusão da OS'),
+                                                            ('tempo_reparo', 'Filtrar pelo tempo total de reparo')], tablefmt='grid', stralign='left'))
+                                    opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                                    lista_filtros_os = ['cpf', 'id_cliente', 'modelo', 'marca', 'inicio', 'conclusao', 'tempo_reparo']
+                                    
+                                    if opcao_filtro not in lista_filtros_os:
+                                        print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+                                    
+                                    if opcao_filtro.lower() == 'id_cliente':
+                                        registro = input('\nDigite o registro do cliente (ID) > ')
+                                        nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas pelo(a) cliente "{nome_cliente}"..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(id_cliente=eval(registro))
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'cpf':
+                                        registro = input('\nDigite o CPF do cliente (Somente números) > ')
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas pelo(a) cliente dono do CPF "{registro}"..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(cpf_cliente=eval(registro))
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'modelo':
+                                        registro = input('\nDigite o modelo do veículo > ').capitalize()
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas para veículos do modelo "{registro}"..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(modelo=registro)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'marca':
+                                        registro = input('\nDigite a marca do veículo > ').capitalize()
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas para veículos da marca "{registro}"..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(marca=registro)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'inicio':
+                                        registro = input('\nDigite a data de início da OS > ')
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas na data "{registro}"..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(data_inicio=registro)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'conclusao':
+                                        registro = input('\nDigite a data de conclusão da OS > ').capitalize()
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS que foram finalizadas na data "{registro}"..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(data_conclusao=registro)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'tempo_reparo':
+                                        registro = input('\nDigite o tempo total de reparo do veículo (dias) > ').capitalize()
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todas OS que duraram por {registro} dias..........{color.END}\n\n')
+                                        select.os_cliente_veiculo(tempo_reparo=registro)
+                                        break
+                                    
                 elif categoria.lower() == 'funcionarios':
                     writer(f'\n{color.GREEN}Mostrando o menu de comandos de funcionários{color.END}')
                     time.sleep(1)

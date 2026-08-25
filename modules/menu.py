@@ -15,7 +15,9 @@ def menu_clientes():
 
 def menu_veiculos():
     lista_consulta_veiculos = [('info_veiculo', 'Traz informações sobre os veículos que estão cadastrados no sistema'),
-                               ('ordem_servico', 'Traz informações sobre ordens de serviços realizadas')]
+                               ('ordem_servico', 'Traz informações sobre ordens de serviços realizadas'),
+                               ('menu', 'Mostra novamente o menu de comandos'),
+                               ('back', 'Volta para o menu principal do script')]
     tabela = tabulate(lista_consulta_veiculos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
 
@@ -34,4 +36,12 @@ def menu_produtos():
                                ('categoria', 'Mostra a quantidade de produtos separados por categorias'),
                                ('fornecedor', 'Consulta informações da lista de fornecedores no banco de dados')]
     tabela = tabulate(lista_consulta_produtos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='center')
+    return print(f'\n{tabela}\n')
+
+def categorias():
+    lista_categorias = [('clientes', 'Consultas para trazer as principais informações sobre os cliente'),
+                                ('veiculos', 'Consultas para trazer as principais informações sobre os veículos dos clientes'),
+                                ('funcionarios', 'Consultas para trazer as principais informações sobre os funcionários da empresa'),
+                                ('produtos', 'Consultas para trazer as principais informações sobre os produtos')]
+    tabela = tabulate(lista_categorias, headers=['Categoria', 'Descrição'], tablefmt='grid')
     return print(f'\n{tabela}\n')
