@@ -245,7 +245,7 @@ class Selectdata:
                 return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
 
             def by_id(self, idv):
-                return print(tabulate(self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
+                return print(tabulate([self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True)], headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
@@ -270,7 +270,7 @@ class Selectdata:
         self.cursor.execute(query_sql, tuple(params))
         return self.cursor.fetchall()
     
-    def consulta_estoque_min(self):
+    def consulta_estoque_min(self, nome_produto=None, abaixo=False, acima=False, no_limite=False):
         query_sql = '''
             SELECT PRODUTO.NOME_PRODUTO, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.QTDE_MIN,
                 CASE
@@ -279,10 +279,38 @@ class Selectdata:
                     ELSE 'Acima do limite mínimo'
                 END AS STATUS
             FROM ESTOQUE
-            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = ESTOQUE.ID_PRODUTO;
+            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = ESTOQUE.ID_PRODUTO 
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
+        params = []
+        conditions = []
+        filtros_status = []
+        
+        if nome_produto is not None:
+            conditions.append('PRODUTO.NOME_PRODUTO = ?')
+            params.append(nome_produto)
+        
+        if abaixo:
+            filtros_status.append('ESTOQUE.QTDE_ESTOQUE < ESTOQUE.QTDE_MIN')
+
+        if acima:
+            filtros_status.append('ESTOQUE.QTDE_ESTOQUE > ESTOQUE.QTDE_MIN')
+
+        if no_limite:
+            filtros_status.append('ESTOQUE.QTDE_ESTOQUE = ESTOQUE.QTDE_MIN')
+
+        if filtros_status:
+            conditions.append(f'({" OR ".join(filtros_status)})')
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
+        
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            return print(tabulate(saida, headers=['PRODUTO', 'QTDE EM ESTOQUE', 'QTDE ESTOQUE MIN.', 'STATUS'], tablefmt='grid', stralign='left'))
+        else:
+            return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def consulta_salario_bruto(self, salario):
         query_sql = f'''
@@ -336,14 +364,29 @@ class Selectdata:
         else:
             print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
-    def produtos_e_fornecedores(self):
+    def produtos_e_fornecedores(self, nome_produto=None, id_produto=None):
         query_sql = '''
             SELECT PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
             FROM FORNECEDOR
-            INNER JOIN PRODUTO ON PRODUTO.ID_FORNECEDOR = FORNECEDOR.ID_FORNECEDOR;
+            INNER JOIN PRODUTO ON PRODUTO.ID_FORNECEDOR = FORNECEDOR.ID_FORNECEDOR 
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
+        params = []
+        
+        if nome_produto is not None:
+            query_sql += 'WHERE PRODUTO.NOME_PRODUTO = ?' 
+            params.append(nome_produto)
+
+        if id_produto is not None:
+            query_sql += 'WHERE PRODUTO.ID_PRODUTO = ?'
+            params.append(id_produto)
+    
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        
+        if saida:
+            print(tabulate(saida, headers=['PRODUTO', 'CATEGORIA', 'FORNECEDOR', 'CNPJ', 'QUANTIDADE', 'PREÇO UNITÁRIO (R$)', 'VALOR TOTAL (R$)'], tablefmt='grid', stralign='left') + '\n')
+        else:
+            print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')  
     
     def funcionario_dep_esp(self):
         query = '''
