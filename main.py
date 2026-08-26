@@ -345,14 +345,44 @@ try:
                         elif comando.lower() == 'menu':
                             menu.menu_funcionarios()
                         
-                        lista_comandos_funcionarios = ['funcionarios', 'func_especialidades', 'folha_pagamento', 'menu', 'back']
+                        lista_comandos_funcionarios = ['info_funcionarios', 'func_especialidades', 'folha_pagamento', 'menu', 'back']
                         if comando.lower() not in lista_comandos_funcionarios:
-                            print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+                            print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
                             
-                        if comando.lower() == 'funcionarios':
+                        if comando.lower() == 'info_funcionarios':
                             quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                            
                             if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
-                                print('oi')
+                                op_func = select.consulta_funcionarios()
+                                while True:
+                                    print('\n' + tabulate([('funcionarios_ativos', 'Mostra os funcionarios ainda ativos na empresa'),
+                                                            ('funcionarios_desligados', 'Mostra os funcionários que foram demitidos da empresa'),
+                                                            ('id_funcionario', 'Procurar por um funcionário específico usando o número de registro (ID)')],
+                                                            headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
+                                    
+                                    quest_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END}: '))
+                                    lista_filtro = ['funcionarios_ativos', 'funcionarios_desligados', 'id_funcionario', 'todos']
+                                    
+                                    if quest_filtro not in lista_filtro:
+                                        print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+                                    
+                                    if quest_filtro == 'funcionarios_ativos':
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários ainda ativos na empresa..........{color.END}\n\n')
+                                        op_func.ativos()
+                                        break
+                                    
+                                    elif quest_filtro == 'funcionarios_desligados':
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários que foram desligados da empresa..........{color.END}\n\n')
+                                        op_func.demitidos()
+                                        break
+                                        
+                                    elif quest_filtro == 'id_funcionario':
+                                        id_funcionario = input('\nDigite o número de registro do funcionário (ID) > ')
+                                        nome_funcioario, = select.funcionarios(id_funcionario=eval(id_funcionario))
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Informações sobre o funcionário "{nome_funcioario}"..........{color.END}\n\n')
+                                        op_func.by_id(id_funcionario)
+                                        break
+                                    
                             elif quest_filtro.lower() in ('nao', 'não', 'n', 'nn'):
                                 writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários registrados no sistema..........{color.END}\n\n')
                                 funcionarios = select.consulta_funcionarios()
@@ -362,6 +392,74 @@ try:
                     writer(f'\n{color.GREEN}Mostrando o menu de comandos dos produtos{color.END}')
                     time.sleep(1)
                     menu.menu_produtos()
+                    
+                    while True:
+                        print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
+                        comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
+                        
+                        if comando.lower() == 'back':
+                            break
+                        
+                        elif comando.lower() == 'menu':
+                            menu.menu_produtos()
+                            
+                        listas_comandos_produtos = ['info_produtos', 'estoque_min', 'compra_produto', 'produtos_estoque', 'categoria', 'fornecedor']
+                        if comando.lower() not in listas_comandos_produtos:
+                            print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
+                        
+                        if comando.lower() == 'info_produtos':
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                            
+                            if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
+                                print('\n' + tabulate([('nome', 'Filtrar utilizando o nome do produto'),
+                                                        ('registro', 'Filtrar utilizando o número de registro (ID) do produto')],
+                                                        headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='center') + '\n')
+                                
+                                while True:
+                                    opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                                    lista_opcao_filtro = ['nome', 'registro']
+                                    
+                                    if opcao_filtro not in lista_opcao_filtro:
+                                        print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+                                    
+                                    if opcao_filtro.lower() == 'nome':
+                                        nome = str(input('\nDigite o nome do produto > ')).capitalize()
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
+                                        select.produtos_e_fornecedores(nome_produto=nome)
+                                        break
+                                    
+                                    elif opcao_filtro.lower() == 'registro':
+                                        registro = input('\nDigite o número de registro do produto (ID) > ')
+                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto N° {registro}..........{color.END}\n\n')
+                                        select.produtos_e_fornecedores(id_produto=registro)
+                                        break
+                            
+                            elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
+                                writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos..........{color.END}\n\n')
+                                select.produtos_e_fornecedores()
+                        
+                        if comando.lower() == 'estoque_min':
+                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
+                            
+                            if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
+                                     print('\n' + tabulate([('nome', 'Filtrar utilizando o nome do produto')],
+                                                            headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='center') + '\n')
+                                     while True:
+                                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                                        lista_opcao_filtro = ['nome']
+
+                                        if opcao_filtro not in lista_opcao_filtro:
+                                            print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
+
+                                        if opcao_filtro.lower() == 'nome':
+                                            nome = str(input('\nDigite o nome do produto > ')).capitalize()
+                                            writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
+                                            select.consulta_estoque_min(nome_produto=nome)
+                                            break
+                            if quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
+                                writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos e sua quantidade em estoque..........{color.END}\n\n')
+                                select.consulta_estoque_min()
+                                select.consulta_estoque_min(abaixo=True)
 
             elif opcao == 2:
                 print(f'\n{color.LIGHT_GREEN}Saindo do sistema SV-Py Lite...{color.END}\n')
