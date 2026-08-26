@@ -22,20 +22,20 @@ def menu_veiculos():
     return print(f'\n{tabela}\n')
 
 def menu_funcionarios():
-    lista_consulta_funcionarios = [('funcionarios', 'Mostra informações de funcionários registrados no banco de dados (ativos e desligados)'),
+    lista_consulta_funcionarios = [('info_funcionarios', 'Mostra informações de funcionários registrados no banco de dados (ativos e desligados)'),
                                    ('func_especialidades', 'Mostra informações apenas de funcionários que possuem especialidades mecânicas'),
                                    ('folha_pagamento', 'Mostra informações referente a folha de pagamento dos funcionários')]
     tabela = tabulate(lista_consulta_funcionarios, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
 
 def menu_produtos():
-    lista_consulta_produtos = [('produtos', 'Mostra informações sobre produtos e fornecedores'),
-                               ('estoque_min', 'Consulta o estoque para saber qual produto atingiu a quantidade mínima'),
-                               ('compra_produto', 'Mostra informações úteis sobre produtos e a quantidade gasta na compra (R$)'),
-                               ('produtos_estoque', 'Mostra quais são os produtos que tem no estoque'),
-                               ('categoria', 'Mostra a quantidade de produtos separados por categorias'),
-                               ('fornecedor', 'Consulta informações da lista de fornecedores no banco de dados')]
-    tabela = tabulate(lista_consulta_produtos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='center')
+    lista_consulta_produtos = [('info_produtos', 'Mostra informações sobre produtos e fornecedores'),
+                                ('estoque_min', 'Consulta o estoque para saber qual produto atingiu a quantidade mínima'),
+                                ('compra_produto', 'Mostra informações úteis sobre produtos e a quantidade gasta na compra (R$)'),
+                                ('produtos_estoque', 'Mostra quais são os produtos que tem no estoque'),
+                                ('categoria', 'Mostra a quantidade de produtos separados por categorias')]
+    
+    tabela = tabulate(lista_consulta_produtos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
 
 def categorias():
@@ -43,5 +43,5 @@ def categorias():
                                 ('veiculos', 'Consultas para trazer as principais informações sobre os veículos dos clientes'),
                                 ('funcionarios', 'Consultas para trazer as principais informações sobre os funcionários da empresa'),
                                 ('produtos', 'Consultas para trazer as principais informações sobre os produtos')]
-    tabela = tabulate(lista_categorias, headers=['Categoria', 'Descrição'], tablefmt='grid')
+    tabela = tabulate(lista_categorias, headers=['Categoria', 'Descrição'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
