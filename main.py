@@ -2,7 +2,7 @@ import modules.database_creator as database_creator
 import modules.insertions as insertions
 from modules.selections import Selectdata
 import modules.menu as menu
-from modules.commands import clientes, veiculos
+from modules.commands import clientes, veiculos, funcionarios
 import os
 from tabulate import tabulate
 import sqlite3
@@ -63,63 +63,9 @@ try:
                     veiculos.executar(select=select, color=color, writer_func=writer)
 
                 elif categoria.lower() == 'funcionarios':
-                    writer(f'\n{color.GREEN}Mostrando o menu de comandos de funcionários{color.END}')
-                    time.sleep(1)
-                    menu.menu_funcionarios()
-                    
-                    while True:
-                        print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
-                        comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
-                        
-                        if comando.lower() == 'back':
-                            break
-                            
-                        elif comando.lower() == 'menu':
-                            menu.menu_funcionarios()
-                        
-                        lista_comandos_funcionarios = ['info_funcionarios', 'func_especialidades', 'folha_pagamento', 'menu', 'back']
-                        if comando.lower() not in lista_comandos_funcionarios:
-                            print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
-                            
-                        if comando.lower() == 'info_funcionarios':
-                            quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
-                            
-                            if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
-                                op_func = select.consulta_funcionarios()
-                                while True:
-                                    print('\n' + tabulate([('funcionarios_ativos', 'Mostra os funcionarios ainda ativos na empresa'),
-                                                            ('funcionarios_desligados', 'Mostra os funcionários que foram demitidos da empresa'),
-                                                            ('id_funcionario', 'Procurar por um funcionário específico usando o número de registro (ID)')],
-                                                            headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
-                                    
-                                    quest_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END}: '))
-                                    lista_filtro = ['funcionarios_ativos', 'funcionarios_desligados', 'id_funcionario', 'todos']
-                                    
-                                    if quest_filtro not in lista_filtro:
-                                        print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
-                                    
-                                    if quest_filtro == 'funcionarios_ativos':
-                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários ainda ativos na empresa..........{color.END}\n\n')
-                                        op_func.ativos()
-                                        break
-                                    
-                                    elif quest_filtro == 'funcionarios_desligados':
-                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários que foram desligados da empresa..........{color.END}\n\n')
-                                        op_func.demitidos()
-                                        break
-                                        
-                                    elif quest_filtro == 'id_funcionario':
-                                        id_funcionario = input('\nDigite o número de registro do funcionário (ID) > ')
-                                        nome_funcioario, = select.funcionarios(id_funcionario=eval(id_funcionario))
-                                        writer(f'\n{color.LIGHT_GREEN}Consulta: Informações sobre o funcionário "{nome_funcioario}"..........{color.END}\n\n')
-                                        op_func.by_id(id_funcionario)
-                                        break
-                                    
-                            elif quest_filtro.lower() in ('nao', 'não', 'n', 'nn'):
-                                writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários registrados no sistema..........{color.END}\n\n')
-                                funcionarios = select.consulta_funcionarios()
-                                print(funcionarios.all())
-                                
+                    funcionarios.executar(select=select, color=color, writer_func=writer)
+                    continue
+
                 elif categoria.lower() == 'produtos':
                     writer(f'\n{color.GREEN}Mostrando o menu de comandos dos produtos{color.END}')
                     time.sleep(1)
