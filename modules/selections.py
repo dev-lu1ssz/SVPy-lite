@@ -323,7 +323,7 @@ class Selectdata:
 
     def status_agenciamento(self, status=None, id_cliente=None):
         query_sql = f'''
-            SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
+            SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_INICIO_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
             FROM AGENCIAMENTO_VEICULO
             INNER JOIN VEICULO ON AGENCIAMENTO_VEICULO.ID_VEICULO = VEICULO.ID_VEICULO
             INNER JOIN CLIENTE ON AGENCIAMENTO_VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE
@@ -432,7 +432,7 @@ class Selectdata:
             params.append(data_conclusao)
 
         if tempo_reparo is not None:
-            query_sql += ' WHERE ORDEM_SERVICO.TEMPO_REPARO = ?'
+            query_sql += ' WHERE ORDEM_SERVICO.TEMPO_TOTAL_REPARO = ?'
             params.append(tempo_reparo)
 
         self.cursor.execute(query_sql, tuple(params))

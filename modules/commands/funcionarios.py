@@ -94,7 +94,7 @@ def executar(select=None, color=None, writer_func=None):
                 elif quest_filtro.lower() in ('nao', 'não', 'n', 'nn'):
                     writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários registrados no sistema..........{color.END}\n\n')
                     funcionarios = select.consulta_funcionarios()
-                    print(funcionarios.all())
+                    funcionarios.all()
     finally:
         if conexao is not None:
             conexao.close()
