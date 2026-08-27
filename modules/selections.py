@@ -151,7 +151,7 @@ class Selectdata:
         saida = self.cursor.fetchall()
         
         if saida:
-            return print(tabulate(saida, headers=['ID', 'PLACA', 'MODELO', 'MARCA', 'CHASSIS'], tablefmt='grid') + '\n')
+            return print(tabulate(saida, headers=['ID', 'PLACA', 'MODELO', 'MARCA', 'CHASSIS'], tablefmt='grid', stralign='left') + '\n')
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
