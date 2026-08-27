@@ -236,16 +236,16 @@ class Selectdata:
                 return self.cursor.fetchone() if single else self.cursor.fetchall()
 
             def all(self):
-                return print(tabulate(self._build_and_exec(), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
+                return print(tabulate(self._build_and_exec(), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
 
             def ativos(self):
-                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
+                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
 
             def demitidos(self):
-                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
+                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
 
             def by_id(self, idv):
-                return print(tabulate([self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True)], headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid'))
+                return print(tabulate([self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True)], headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
