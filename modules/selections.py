@@ -51,18 +51,17 @@ class Selectdata:
         return colunas, dados
     
     def nome_cliente(self, id_cliente): # Mostra o nome do cliente usando o ID como filtro
-        query_sql = f'''
-            SELECT NOME_CLIENTE FROM CLIENTE WHERE ID_CLIENTE = {id_cliente}
+        query_sql = '''
+            SELECT NOME_CLIENTE FROM CLIENTE WHERE ID_CLIENTE = ?
         '''
-        self.cursor.execute(query_sql)
+        self.cursor.execute(query_sql, (id_cliente,))
         return self.cursor.fetchone()
     
     def funcionarios(self, id_funcionario): # Mostra o nome do funcionário usando o ID como filtro
-        query_sql = f'''
-            SELECT NOME_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = {id_funcionario}
+        query_sql = '''
+            SELECT NOME_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = ?
         '''
-        
-        self.cursor.execute(query_sql)
+        self.cursor.execute(query_sql, (id_funcionario,))
         return self.cursor.fetchone()
     
     def client_info(self, id_cliente=None):
@@ -171,7 +170,7 @@ class Selectdata:
         params = []
         
         if nome is not None:
-            query_sql += 'WHERE NOME = ?'
+            query_sql += 'WHERE NOME_FORNECEDOR = ?'
             params.append(nome)
         
         if cnpj is not None:
@@ -313,12 +312,13 @@ class Selectdata:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def consulta_salario_bruto(self, salario):
-        query_sql = f'''
+        query_sql = '''
             SELECT FUNCIONARIO.NOME_FUNCIONARIO, FOLHA_PAGAMENTO.SALARIO_BRUTO, FUNCIONARIO.DATA_ADMISSAO, FUNCIONARIO.DATA_DEMISSAO
             FROM FUNCIONARIO
-            INNER JOIN FOLHA_PAGAMENTO ON FOLHA_PAGAMENTO.ID_FUNCIONARIO = FUNCIONARIO.ID_FUNCIONARIO WHERE FOLHA_PAGAMENTO.SALARIO_BRUTO > {salario}
+            INNER JOIN FOLHA_PAGAMENTO ON FOLHA_PAGAMENTO.ID_FUNCIONARIO = FUNCIONARIO.ID_FUNCIONARIO WHERE FOLHA_PAGAMENTO.SALARIO_BRUTO > ?
         '''
-        self.cursor.execute(query_sql)
+
+        self.cursor.execute(query_sql, (salario,))
         return self.cursor.fetchall()
 
     def status_agenciamento(self, status=None, id_cliente=None):
@@ -348,7 +348,7 @@ class Selectdata:
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE, VEICULO.MODELO, VEICULO.MARCA
             FROM CLIENTE
-            INNER JOIN VEICULO ON VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE ;
+            INNER JOIN VEICULO ON VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE 
         '''
         params = []
         
@@ -560,16 +560,16 @@ class Selectdata:
         return self.cursor.fetchall()
     
     def total_pagamentos_metodo(self, metodo):
-        query_sql = f'''
+        query_sql = '''
             SELECT PAGAMENTO.METODO_PAGAMENTO,
             COUNT (*) AS TOTAL_PAGAMENTOS,
             SUM (VALOR_TOTAL) AS VALOR_TOTAL_AGRUPADO
             FROM PAGAMENTO
-            WHERE METODO_PAGAMENTO = '{metodo}'
+            WHERE METODO_PAGAMENTO = ?
             GROUP BY METODO_PAGAMENTO
             ORDER BY VALOR_TOTAL_AGRUPADO DESC;
         '''
-        self.cursor.execute(query_sql)
+        self.cursor.execute(query_sql, (metodo,))
         return self.cursor.fetchall()
     
     def total_produtos_categoria(self, categoria):
@@ -578,8 +578,8 @@ class Selectdata:
             COUNT (*) AS TOTAL_PRODUTOS,
             SUM (PRECO_UNITARIO) AS PRECO_TOTAL
             FROM PRODUTO 
-            WHERE CATEGORIA = '{categoria}'
+            WHERE CATEGORIA = ?
             GROUP BY CATEGORIA;
         '''
-        self.cursor.execute(query_sql)
+        self.cursor.execute(query_sql, (categoria,))
         return self.cursor.fetchall()
