@@ -79,7 +79,7 @@ class Selectdata:
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
         if saida:
-            return print(tabulate(saida, headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'ENDEREÇO'], tablefmt='grid'))
+            return print(tabulate(saida, headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
         else:
             return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
@@ -101,10 +101,10 @@ class Selectdata:
         if apenas_ultimo:
             query_sql += adc_ultimo
             self.cursor.execute(query_sql, params)
-            return print(tabulate([self.cursor.fetchone()]  , headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid'))
+            return print(tabulate([self.cursor.fetchone()]  , headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
         else:
             self.cursor.execute(query_sql, params)
-            return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid'))
+            return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
     
     def info_pagamento(self, id_cliente=None, sitaucao=None):
         params = []
@@ -129,7 +129,7 @@ class Selectdata:
             query_sql += '\nWHERE ' + ' AND '.join(conditions)
 
         self.cursor.execute(query_sql, params)
-        return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid'))
+        return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid', stralign='left'))
 
     def consulta_carro(self, placa=None, modelo=None, marca=None):
         query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
@@ -340,7 +340,7 @@ class Selectdata:
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
         if saida:
-            return print(tabulate(saida, headers=['ID', 'CLIENTE', 'MODELO DO VEÍCULO', 'DATA DE AGEN.', 'STATUS AGEN.'], tablefmt='grid'))
+            return print(tabulate(saida, headers=['ID', 'CLIENTE', 'MODELO DO VEÍCULO', 'DATA DE AGEN.', 'STATUS AGEN.'], tablefmt='grid', stralign='left'))
         else:
             return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
@@ -360,7 +360,7 @@ class Selectdata:
         saida = self.cursor.fetchall()
         
         if saida:
-            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'TELEFONE', 'MODELO DO VEICULO', 'MARCA DO VEICULO'], tablefmt='grid'))
+            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'TELEFONE', 'MODELO DO VEICULO', 'MARCA DO VEICULO'], tablefmt='grid', stralign='left'))
         else:
             print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
@@ -489,7 +489,7 @@ class Selectdata:
         saida = self.cursor.fetchall()
         
         if saida:
-            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'DATA DE ATENDIMENTO', 'FUNCIONÁRIO'], tablefmt='grid'))
+            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'DATA DE ATENDIMENTO', 'FUNCIONÁRIO'], tablefmt='grid', stralign='left'))
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
@@ -543,7 +543,7 @@ class Selectdata:
         saida = self.cursor.fetchall()
         
         if saida:
-            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'QTDE VEICULOS'], tablefmt='grid'))
+            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'QTDE VEICULOS'], tablefmt='grid', stralign='left'))
         else:
             print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
