@@ -83,11 +83,11 @@ class Selectdata:
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
         if saida:
-            return print(tabulate(saida, headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
+            return print(tabulate(saida, headers=['ID', 'NOME', 'CPF', 'TELEFONE', 'LOGRADOURO', 'NÚMERO', 'CIDADE', 'UF', 'CEP'], tablefmt='grid', stralign='left'))
         else:
             return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False, faixa_dados=None):
+    def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False):
         params = []
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, VEICULO.MARCA, ORDEM_SERVICO.DESC_REPARO
@@ -96,9 +96,9 @@ class Selectdata:
             INNER JOIN VEICULO ON VEICULO.ID_VEICULO = ORDEM_SERVICO.ID_VEICULO 
                     '''
         adc_client = 'WHERE CLIENTE.ID_CLIENTE = ?'
-        adc_ultimo = 'ORDER BY ORDEM_SERVICO.DATA_INICIO LIMIT 1'
+        adc_ultimo = ' ORDER BY substr(ORDEM_SERVICO.DATA_INICIO, 7, 4) DESC, substr(ORDEM_SERVICO.DATA_INICIO, 4, 2) DESC, substr(ORDEM_SERVICO.DATA_INICIO, 1, 2) DESC LIMIT 1'
         
-        if id_cliente:
+        if id_cliente is not None:
             query_sql += adc_client
             params.append(id_cliente)
 
@@ -248,17 +248,20 @@ class Selectdata:
                 self.cursor.execute(q, tuple(params))
                 return self.cursor.fetchone() if single else self.cursor.fetchall()
 
+            headers = ['ID', 'NOME', 'DEPARTAMENTO', 'ESPECIALIDADE', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'LOGRADOURO', 'NÚMERO', 'CIDADE', 'UF', 'CEP']
+
             def all(self):
-                return print(tabulate(self._build_and_exec(), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
+                return print(tabulate(self._build_and_exec(), headers=self.headers, tablefmt='grid', stralign='left'))
 
             def ativos(self):
-                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
+                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NULL'), headers=self.headers, tablefmt='grid', stralign='left'))
 
             def demitidos(self):
-                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
+                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=self.headers, tablefmt='grid', stralign='left'))
 
             def by_id(self, idv):
-                return print(tabulate([self._build_and_exec('ID_FUNCIONARIO = ?', [idv], single=True)], headers=['ID', 'DEPARTAMENTO', 'ESPECIALIDADE', 'NOME', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'ENDEREÇO'], tablefmt='grid', stralign='left'))
+                registro = self._build_and_exec('FUNCIONARIO.ID_FUNCIONARIO = ?', [idv], single=True)
+                return print(tabulate([registro] if registro else [], headers=self.headers, tablefmt='grid', stralign='left'))
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
@@ -374,6 +377,9 @@ class Selectdata:
         if id_cliente is not None:
             conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
         
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
