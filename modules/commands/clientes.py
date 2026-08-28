@@ -62,9 +62,9 @@ def executar(select=None, color=None, writer_func=None):
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
                         registro = input('\nDigite o número de registro do cliente (ID) > ')
-                        nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                        nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                         writer_func(f'{color.LIGHT_GREEN}\nConsulta: Cadastro do(a) cliente "{nome_cliente}" ..........{color.END}\n\n')
-                        select.client_info(eval(registro))
+                        select.client_info(int(registro))
                         break
                 else:
                     writer_func(f'\n{color.LIGHT_GREEN}Consulta: Cadastro de todos os clientes............{color.END}\n\n')
@@ -83,9 +83,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro.lower() == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                             writer_func(f'\nConsulta: Todas OS solicitadas pelo(a) cliente "{nome_cliente}"............\n\n')
-                            select.cliente_ult_os(id_cliente=eval(registro))
+                            select.cliente_ult_os(id_cliente=int(registro))
                             break
 
                         elif opcao_filtro.lower() == 'ultimo':
@@ -95,9 +95,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         elif opcao_filtro.lower() == 'combinado':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                             writer_func(f'\nConsulta: Última OS solicitada pelo(a) cliente "{nome_cliente}"............\n\n')
-                            select.cliente_ult_os(id_cliente=eval(registro), apenas_ultimo=True)
+                            select.cliente_ult_os(id_cliente=int(registro), apenas_ultimo=True)
                             break
 
                 elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n'):
@@ -109,26 +109,35 @@ def executar(select=None, color=None, writer_func=None):
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     while True:
                         print('\n' + tabulate([('id', 'Filtrar usuário pelo número de registro'),
-                                               ('situação', 'Filtra pela situação do pagamento (Pendente, Pago)')],
+                                               ('situação', 'Filtra pela situação do pagamento (Pendente, Pago)'),
+                                               ('combinado', 'Combina ID do cliente e situação')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
 
                         opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
 
                         if opcao_filtro.lower() == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                             writer_func(f'\nConsulta: Todos os pagamentos realizados pelo cliente "{nome_cliente}"............\n\n')
-                            select.info_pagamento(id_cliente=eval(registro))
+                            select.info_pagamento(id_cliente=int(registro))
                             break
 
                         elif opcao_filtro.lower() in ('situação', 'situacao'):
-                            situacao = str(input('Deseja filtrar qual situação ? [Pendente/Pago]: '))
+                            situacao = str(input('Deseja filtrar qual situação ? [Pendente/Pago]: ')).strip().capitalize()
                             if situacao.lower() in ('pendente', 'pago'):
                                 writer_func(f'\nConsulta: Todos os pagamentos com a situação "{situacao}"............\n\n')
                                 select.info_pagamento(sitaucao=situacao)
                                 break
                             else:
                                 print(f'{color.RED}O valor digitado é inválido! Por favor digite apenas um dos valores (Pendente/Pago){color.END}')
+
+                        elif opcao_filtro.lower() == 'combinado':
+                            registro = input('Digite o número de registro do cliente (ID) > ')
+                            situacao = input('Digite a situação do pagamento [Pendente/Pago/Cancelado] > ').strip().capitalize()
+                            if situacao in ('Pendente', 'Pago', 'Cancelado'):
+                                select.info_pagamento(id_cliente=int(registro), sitaucao=situacao)
+                                break
+                            print(f'{color.RED}Situação inválida.{color.END}')
 
                 elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n'):
                     writer_func('\nConsultando o banco de dados............\n\n')
@@ -139,24 +148,33 @@ def executar(select=None, color=None, writer_func=None):
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     while True:
                         print('\n' + tabulate([('id', 'Filtrar pelo número de registro do cliente'),
-                                               ('status', 'Filtrar pelo status do agenciamento (Pendente/Vendido)')],
+                                               ('status', 'Filtrar pelo status do agenciamento (Pendente/Vendido)'),
+                                               ('combinado', 'Combina ID do cliente e status')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
                         opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
                         if opcao_filtro.lower() == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                             writer_func(f'\nConsulta: Todo agenciamento solicitado pelo(a) cliente "{nome_cliente}"............\n\n')
-                            select.status_agenciamento(id_cliente=eval(registro))
+                            select.status_agenciamento(id_cliente=int(registro))
                             break
 
                         elif opcao_filtro.lower() == 'status':
-                            status = str(input('Deseja filtrar qual situação ? [Pendente/Vendido]: '))
-                            if status.lower() in ('pendente', 'pago'):
+                            status = str(input('Deseja filtrar qual situação ? [Pendente/Vendido]: ')).strip().capitalize()
+                            if status.lower() in ('pendente', 'vendido', 'cancelado'):
                                 writer_func(f'\nConsulta: Todos os agenciamento que possuem o status "{status}"............\n\n')
                                 select.status_agenciamento(status=status)
                                 break
                             else:
                                 print(f'{color.RED}O valor digitado é inválido! Por favor digite apenas um dos valores (Pendente/Vendido){color.END}')
+
+                        elif opcao_filtro.lower() == 'combinado':
+                            registro = input('Digite o número de registro do cliente (ID) > ')
+                            status = input('Digite o status [Pendente/Vendido/Cancelado] > ').strip().capitalize()
+                            if status in ('Pendente', 'Vendido', 'Cancelado'):
+                                select.status_agenciamento(status=status, id_cliente=int(registro))
+                                break
+                            print(f'{color.RED}Status inválido.{color.END}')
 
                 elif quest_filtro.lower() in ('não', 'nao', 'nn', 'n', 'no'):
                     writer_func('\nConsulta: Todos os agenciamentos que foram solicitados............\n\n')
@@ -167,22 +185,29 @@ def executar(select=None, color=None, writer_func=None):
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
                         print('\n' + tabulate([('id_cliente', 'Filtrar pelo número de registro do cliente'),
-                                               ('id_funcionario', 'Filtrar pelo número de registro do funcionário')],
+                                               ('id_funcionario', 'Filtrar pelo número de registro do funcionário'),
+                                               ('combinado', 'Combina cliente e funcionário')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
                         opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
 
                         if opcao_filtro == 'id_cliente':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                             writer_func(f'\nConsulta: Todos os atendimentos realizados para o cliente "{nome_cliente}"............\n\n')
-                            select.atendimento_ao_cliente(id_cliente=eval(registro))
+                            select.atendimento_ao_cliente(id_cliente=int(registro))
                             break
 
                         elif opcao_filtro == 'id_funcionario':
                             registro = input('Digite o número de registro do funcionário (ID) > ')
-                            nome_funcionario, = select.funcionarios(eval(registro[0].strip()))
+                            nome_funcionario, = select.funcionarios(int(registro.strip()))
                             writer_func(f'{color.LIGHT_GREEN}\nConsulta: Todos atendimentos realizados pelo funcionário "{nome_funcionario}" ..........{color.END}\n\n')
-                            select.atendimento_ao_cliente(id_funcionario=eval(registro))
+                            select.atendimento_ao_cliente(id_funcionario=int(registro))
+                            break
+
+                        elif opcao_filtro == 'combinado':
+                            id_cliente = int(input('Digite o ID do cliente > '))
+                            id_funcionario = int(input('Digite o ID do funcionário > '))
+                            select.atendimento_ao_cliente(id_cliente=id_cliente, id_funcionario=id_funcionario)
                             break
 
                         else:
