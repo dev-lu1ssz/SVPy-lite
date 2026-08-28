@@ -24,12 +24,15 @@ class Selectdata:
 
         tabelas_permitidas = {
             "CLIENTE",
+            "ENDERECO",
+            "CATEGORIA_PRODUTO",
             "VEICULO",
             "FORNECEDOR",
             "PRODUTO",
             "FUNCIONARIO",
             "ORDEM_SERVICO",
             "PAGAMENTO",
+            "PAGAMENTO_ITEM",
             "FEEDBACK",
             "DEPARTAMENTO",
             "ESPECIALIDADE",
@@ -66,8 +69,10 @@ class Selectdata:
     
     def client_info(self, id_cliente=None):
         query_sql = '''
-            SELECT ID_CLIENTE, NOME_CLIENTE, CPF_CLIENTE, TELEFONE, ENDERECO
-            FROM CLIENTE
+                 SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE,
+                     ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP
+                 FROM CLIENTE
+                 INNER JOIN ENDERECO ON ENDERECO.ID_ENDERECO = CLIENTE.ID_ENDERECO
         '''
         params = []
 
@@ -133,18 +138,22 @@ class Selectdata:
     def consulta_carro(self, placa=None, modelo=None, marca=None):
         query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
         params = []
+        conditions = []
         
         if placa is not None:
-            query_sql += ' WHERE PLACA = ?'
+            conditions.append('PLACA = ?')
             params.append(placa)
         
         if modelo is not None:
-            query_sql += ' WHERE MODELO = ?'
+            conditions.append('MODELO = ?')
             params.append(modelo)
         
         if marca is not None:
-            query_sql += ' WHERE MARCA = ?'
+            conditions.append('MARCA = ?')
             params.append(marca)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
 
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
@@ -155,11 +164,11 @@ class Selectdata:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def consulta_produto(self, categoria=None):
-        query_sql = 'SELECT ID_PRODUTO, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO, PRECO_TOTAL FROM PRODUTO '
+        query_sql = 'SELECT PRODUTO.ID_PRODUTO, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL FROM PRODUTO INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA '
         params = []
         
         if categoria is not None:
-            query_sql += 'WHERE CATEGORIA = ?'
+            query_sql += 'WHERE CATEGORIA_PRODUTO.NOME_CATEGORIA = ?'
             params.append(categoria)
 
         self.cursor.execute(query_sql, tuple(params))
@@ -168,14 +177,18 @@ class Selectdata:
     def consulta_fornecedor(self, nome=None, cnpj=None):
         query_sql = 'SELECT * FROM FORNECEDOR '
         params = []
+        conditions = []
         
         if nome is not None:
-            query_sql += 'WHERE NOME_FORNECEDOR = ?'
+            conditions.append('NOME_FORNECEDOR = ?')
             params.append(nome)
         
         if cnpj is not None:
-            query_sql += 'WHERE CNPJ = ?'
+            conditions.append('CNPJ = ?')
             params.append(cnpj)
+
+        if conditions:
+            query_sql += 'WHERE ' + ' AND '.join(conditions)
         
         self.cursor.execute(query_sql, tuple(params))
         return self.cursor.fetchall()
@@ -183,10 +196,11 @@ class Selectdata:
     def consulta_funcionarios(self, id_funcionario=None, nome=None, id_departamento=None, id_especialidade=None):
         base_query = (
             'SELECT FUNCIONARIO.ID_FUNCIONARIO, FUNCIONARIO.NOME_FUNCIONARIO, DEPARTAMENTO.NOME_DEPARTAMENTO, ESPECIALIDADE.NOME_ESPECIALIDADE, '
-            'DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO  '
+            'DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP  '
             'FROM FUNCIONARIO '
             'INNER JOIN DEPARTAMENTO ON FUNCIONARIO.ID_DEPARTAMENTO = DEPARTAMENTO.ID_DEPARTAMENTO '
-            'INNER JOIN ESPECIALIDADE ON FUNCIONARIO.ID_ESPECIALIDADE = ESPECIALIDADE.ID_ESPECIALIDADE'
+            'INNER JOIN ESPECIALIDADE ON FUNCIONARIO.ID_ESPECIALIDADE = ESPECIALIDADE.ID_ESPECIALIDADE '
+            'INNER JOIN ENDERECO ON FUNCIONARIO.ID_ENDERECO = ENDERECO.ID_ENDERECO'
         )
         params = []
         conditions = []
@@ -329,13 +343,17 @@ class Selectdata:
             INNER JOIN CLIENTE ON AGENCIAMENTO_VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE
         '''
         params = []
+        conditions = []
         if status is not None:
-            query_sql += ' WHERE AGENCIAMENTO_VEICULO.STATUS = ?'
+            conditions.append('AGENCIAMENTO_VEICULO.STATUS = ?')
             params.append(status)
             
         if id_cliente is not None:
-            query_sql += ' WHERE CLIENTE.ID_CLIENTE = ?'
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
         
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
@@ -351,9 +369,10 @@ class Selectdata:
             INNER JOIN VEICULO ON VEICULO.ID_CLIENTE = CLIENTE.ID_CLIENTE 
         '''
         params = []
+        conditions = []
         
         if id_cliente is not None:
-            query_sql += 'WHERE CLIENTE.ID_CLIENTE = ?'
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
         
         self.cursor.execute(query_sql, tuple(params))
@@ -366,19 +385,24 @@ class Selectdata:
 
     def produtos_e_fornecedores(self, nome_produto=None, id_produto=None):
         query_sql = '''
-            SELECT PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
+            SELECT PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
             FROM FORNECEDOR
-            INNER JOIN PRODUTO ON PRODUTO.ID_FORNECEDOR = FORNECEDOR.ID_FORNECEDOR 
+            INNER JOIN PRODUTO ON PRODUTO.ID_FORNECEDOR = FORNECEDOR.ID_FORNECEDOR
+            INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA
         '''
         params = []
+        conditions = []
         
         if nome_produto is not None:
-            query_sql += 'WHERE PRODUTO.NOME_PRODUTO = ?' 
+            conditions.append('PRODUTO.NOME_PRODUTO = ?')
             params.append(nome_produto)
 
         if id_produto is not None:
-            query_sql += 'WHERE PRODUTO.ID_PRODUTO = ?'
+            conditions.append('PRODUTO.ID_PRODUTO = ?')
             params.append(id_produto)
+
+        if conditions:
+            query_sql += 'WHERE ' + ' AND '.join(conditions)
     
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
@@ -406,34 +430,38 @@ class Selectdata:
             INNER JOIN VEICULO ON VEICULO.ID_VEICULO = ORDEM_SERVICO.ID_VEICULO
         '''
         params = []
+        conditions = []
         
         if id_cliente is not None:
-            query_sql += ' WHERE CLIENTE.ID_CLIENTE = ?'
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
 
         if cpf_cliente is not None:
-            query_sql += ' WHERE CLIENTE.CPF_CLIENTE = ?'
+            conditions.append('CLIENTE.CPF_CLIENTE = ?')
             params.append(cpf_cliente)
 
         if modelo is not None:
-            query_sql += ' WHERE VEICULO.MODELO = ?'
+            conditions.append('VEICULO.MODELO = ?')
             params.append(modelo)
 
         if marca is not None:
-            query_sql += ' WHERE VEICULO.MARCA = ?'
+            conditions.append('VEICULO.MARCA = ?')
             params.append(marca)
 
         if data_inicio is not None:
-            query_sql += ' WHERE ORDEM_SERVICO.DATA_INICIO = ?'
+            conditions.append('ORDEM_SERVICO.DATA_INICIO = ?')
             params.append(data_inicio)
 
         if data_conclusao is not None:
-            query_sql += ' WHERE ORDEM_SERVICO.DATA_CONCLUSAO = ?'
+            conditions.append('ORDEM_SERVICO.DATA_CONCLUSAO = ?')
             params.append(data_conclusao)
 
         if tempo_reparo is not None:
-            query_sql += ' WHERE ORDEM_SERVICO.TEMPO_TOTAL_REPARO = ?'
+            conditions.append('ORDEM_SERVICO.TEMPO_TOTAL_REPARO = ?')
             params.append(tempo_reparo)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
 
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
@@ -449,20 +477,25 @@ class Selectdata:
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, ORDEM_SERVICO.DATA_INICIO, ORDEM_SERVICO.TEMPO_TOTAL_REPARO, ORDEM_SERVICO.DESC_REPARO, PAGAMENTO.METODO_PAGAMENTO, ORDEM_SERVICO.VALOR_TOTAL
             FROM PAGAMENTO
-            INNER JOIN ORDEM_SERVICO ON ORDEM_SERVICO.ID_OS = PAGAMENTO.ID_OS
-            INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = PAGAMENTO.ID_CLIENTE;
+            INNER JOIN PAGAMENTO_ITEM ON PAGAMENTO_ITEM.ID_PAGAMENTO = PAGAMENTO.ID_PAGAMENTO
+            INNER JOIN ORDEM_SERVICO ON ORDEM_SERVICO.ID_OS = PAGAMENTO_ITEM.ID_OS
+            INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = PAGAMENTO.ID_CLIENTE
+            WHERE PAGAMENTO_ITEM.ID_OS IS NOT NULL;
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
     
     def pagamento_produto(self):
         query_sql = '''
-            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, 
-            PAGAMENTO.DATA_PAGAMENTO, PRODUTO.PRECO_UNITARIO, PRODUTO.QUANTIDADE, PRODUTO.PRECO_TOTAL, PAGAMENTO.STATUS_PAGAMENTO, PAGAMENTO.METODO_PAGAMENTO
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ,
+            PAGAMENTO.DATA_PAGAMENTO, PRODUTO.PRECO_UNITARIO, PAGAMENTO_ITEM.QUANTIDADE, PAGAMENTO_ITEM.VALOR_ITEM, PAGAMENTO.STATUS_PAGAMENTO, PAGAMENTO.METODO_PAGAMENTO
             FROM PAGAMENTO
+            INNER JOIN PAGAMENTO_ITEM ON PAGAMENTO_ITEM.ID_PAGAMENTO = PAGAMENTO.ID_PAGAMENTO
             INNER JOIN CLIENTE ON CLIENTE.ID_CLIENTE = PAGAMENTO.ID_CLIENTE
-            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = PAGAMENTO.ID_PRODUTO
-            INNER JOIN FORNECEDOR ON FORNECEDOR.ID_FORNECEDOR = PRODUTO.ID_FORNECEDOR;
+            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = PAGAMENTO_ITEM.ID_PRODUTO
+            INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA
+            INNER JOIN FORNECEDOR ON FORNECEDOR.ID_FORNECEDOR = PRODUTO.ID_FORNECEDOR
+            WHERE PAGAMENTO_ITEM.ID_PRODUTO IS NOT NULL;
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
@@ -476,14 +509,18 @@ class Selectdata:
             INNER JOIN FUNCIONARIO ON FUNCIONARIO.ID_FUNCIONARIO = ATENDIMENTO.ID_FUNCIONARIO
         '''
         params = []
+        conditions = []
         
         if id_funcionario is not None:
-            query_sql += ' WHERE FUNCIONARIO.ID_FUNCIONARIO = ?'
+            conditions.append('FUNCIONARIO.ID_FUNCIONARIO = ?')
             params.append(id_funcionario)
         
         if id_cliente is not None:
-            query_sql += ' WHERE CLIENTE.ID_CLIENTE = ?'
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
         
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
@@ -495,10 +532,11 @@ class Selectdata:
     
     def produtos_estoque(self):
         query_sql = '''
-            SELECT PRODUTO.NOME_PRODUTO, PRODUTO.CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.VALIDADE_DIAS
+            SELECT PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.VALIDADE_DIAS
             FROM ESTOQUE
-            INNER JOIN FORNECEDOR ON FORNECEDOR.ID_FORNECEDOR = ESTOQUE.ID_FORNECEDOR
-            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = ESTOQUE.ID_PRODUTO;
+            INNER JOIN PRODUTO ON PRODUTO.ID_PRODUTO = ESTOQUE.ID_PRODUTO
+            INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA
+            INNER JOIN FORNECEDOR ON FORNECEDOR.ID_FORNECEDOR = PRODUTO.ID_FORNECEDOR;
         '''
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
@@ -574,12 +612,13 @@ class Selectdata:
     
     def total_produtos_categoria(self, categoria):
         query_sql = f'''
-            SELECT CATEGORIA,
+            SELECT CATEGORIA_PRODUTO.NOME_CATEGORIA,
             COUNT (*) AS TOTAL_PRODUTOS,
-            SUM (PRECO_UNITARIO) AS PRECO_TOTAL
-            FROM PRODUTO 
-            WHERE CATEGORIA = ?
-            GROUP BY CATEGORIA;
+            SUM (PRODUTO.PRECO_UNITARIO) AS PRECO_TOTAL
+            FROM PRODUTO
+            INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA
+            WHERE CATEGORIA_PRODUTO.NOME_CATEGORIA = ?
+            GROUP BY CATEGORIA_PRODUTO.NOME_CATEGORIA;
         '''
         self.cursor.execute(query_sql, (categoria,))
         return self.cursor.fetchall()

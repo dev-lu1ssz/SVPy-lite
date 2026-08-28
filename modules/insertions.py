@@ -9,11 +9,11 @@ class InData:
 
     @staticmethod
     def _data_mais_meses(data_base, meses):
-        data = datetime.datetime.strptime(data_base, '%Y-%m-%d').date()
+        data = datetime.datetime.strptime(data_base, '%d-%m-%Y').date()
         ano = data.year + ((data.month - 1 + meses) // 12)
         mes = (data.month - 1 + meses) % 12 + 1
         dia = min(data.day, 28)
-        return datetime.date(ano, mes, dia).isoformat()
+        return datetime.date(ano, mes, dia).strftime('%d-%m-%Y')
 
     @staticmethod
     def _valor_parcela_total(valor_total, parcelas):
@@ -22,23 +22,23 @@ class InData:
         valor_base = round(valor_total / parcelas, 2)
         return valor_base
 
-    def cliente(self, nome_cliente, endereco_cliente, telefone, cpf_cliente):
+    def cliente(self, nome_cliente, id_endereco, telefone, cpf_cliente):
         self.cursor.execute(
             '''
-                INSERT INTO CLIENTE(NOME_CLIENTE, ENDERECO, TELEFONE, CPF_CLIENTE) VALUES
+                INSERT INTO CLIENTE(NOME_CLIENTE, ID_ENDERECO, TELEFONE, CPF_CLIENTE) VALUES
                 (?, ?, ?, ?)
             ''',
-            (nome_cliente, endereco_cliente, telefone, cpf_cliente),
+            (nome_cliente, id_endereco, telefone, cpf_cliente),
         )
         self.conexao.commit()
 
-    def funcionario(self, id_departamento, id_especialidade, nome_funcionario, data_admissao, data_demissao, endereco):
+    def funcionario(self, id_departamento, id_especialidade, nome_funcionario, data_admissao, data_demissao, id_endereco):
         self.cursor.execute(
             '''
-                INSERT INTO FUNCIONARIO(ID_DEPARTAMENTO, ID_ESPECIALIDADE, NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO) VALUES
+                INSERT INTO FUNCIONARIO(ID_DEPARTAMENTO, ID_ESPECIALIDADE, NOME_FUNCIONARIO, DATA_ADMISSAO, DATA_DEMISSAO, ID_ENDERECO) VALUES
                 (?, ?, ?, ?, ?, ?)
             ''',
-            (id_departamento, id_especialidade, nome_funcionario, data_admissao, data_demissao, endereco),
+            (id_departamento, id_especialidade, nome_funcionario, data_admissao, data_demissao, id_endereco),
         )
         self.conexao.commit()
 
@@ -72,16 +72,26 @@ class InData:
         )
         self.conexao.commit()
 
-    def fornecedor(self, nome_fornecedor, cnpj, telefone, endereco_fornecedor):
+    def fornecedor(self, nome_fornecedor, cnpj, telefone, id_endereco):
         self.cursor.execute(
             '''
-                INSERT INTO FORNECEDOR(NOME_FORNECEDOR, CNPJ, TELEFONE, ENDERECO) VALUES
+                INSERT INTO FORNECEDOR(NOME_FORNECEDOR, CNPJ, TELEFONE, ID_ENDERECO) VALUES
                 (?, ?, ?, ?)
             ''',
-            (nome_fornecedor, cnpj, telefone, endereco_fornecedor),
+            (nome_fornecedor, cnpj, telefone, id_endereco),
         )
         self.conexao.commit()
 
+    def endereco(self, logradouro, numero, complemento, bairro, cidade, uf, cep):
+        self.cursor.execute(
+            '''
+                INSERT INTO ENDERECO(LOGRADOURO, NUMERO, COMPLEMENTO, BAIRRO, CIDADE, UF, CEP)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (logradouro, numero, complemento, bairro, cidade, uf, cep),
+        )
+        self.conexao.commit()
+        return self.cursor.lastrowid
     def ordem_servico(self, id_veiculo, id_cliente, data_inicio, data_conclusao, tempo_total, agendamento, valor_total, desc_reparo):
         self.cursor.execute(
             '''
@@ -95,53 +105,60 @@ class InData:
     def pagamento(self, id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, valor_total, referencia):
         self.cursor.execute(
             '''
-                INSERT INTO PAGAMENTO(ID_CLIENTE, ID_OS, ID_PRODUTO, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, STATUS_PAGAMENTO, VALOR_TOTAL, REFERENCIA) VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO PAGAMENTO(ID_CLIENTE, METODO_PAGAMENTO, PARCELAS, DATA_PAGAMENTO, STATUS_PAGAMENTO, VALOR_TOTAL, REFERENCIA) VALUES
+                (?, ?, ?, ?, ?, ?, ?)
             ''',
-            (id_cliente, id_os, id_produto, metodo_pagamento, parcelas, data_pagamento, status_pagamento, valor_total, referencia),
+            (id_cliente, metodo_pagamento, parcelas, data_pagamento, status_pagamento, valor_total, referencia),
         )
         id_pagamento = self.cursor.lastrowid
 
-        if int(parcelas) > 1:
-            valor_base = self._valor_parcela_total(valor_total, parcelas)
-            total_ja_distribuido = 0.0
+        self.cursor.execute(
+            '''
+                INSERT INTO PAGAMENTO_ITEM(ID_PAGAMENTO, ID_OS, ID_PRODUTO, VALOR_ITEM)
+                VALUES (?, ?, ?, ?)
+            ''',
+            (id_pagamento, id_os, id_produto, valor_total),
+        )
 
-            for parcela in range(1, int(parcelas) + 1):
-                if parcela == int(parcelas):
-                    valor_parcela = round(float(valor_total) - total_ja_distribuido, 2)
-                else:
-                    valor_parcela = valor_base
-                    total_ja_distribuido = round(total_ja_distribuido + valor_parcela, 2)
+        valor_base = self._valor_parcela_total(valor_total, parcelas)
+        total_ja_distribuido = 0.0
 
-                data_vencimento = self._data_mais_meses(data_pagamento, parcela - 1)
-                self.cursor.execute(
-                    '''
-                        INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, NUMERO_PARCELA, VALOR_PARCELA, DATA_VENCIMENTO_RECEBER, DATA_RECEBIMENTO, STATUS)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ''',
-                    (id_pagamento, parcela, valor_parcela, data_vencimento, None, 'Pendente'),
-                )
+        for parcela in range(1, int(parcelas) + 1):
+            if parcela == int(parcelas):
+                valor_parcela = round(float(valor_total) - total_ja_distribuido, 2)
+            else:
+                valor_parcela = valor_base
+                total_ja_distribuido = round(total_ja_distribuido + valor_parcela, 2)
+
+            data_vencimento = self._data_mais_meses(data_pagamento, parcela - 1)
+            self.cursor.execute(
+                '''
+                    INSERT INTO CONTA_RECEBER(ID_PAGAMENTO, NUMERO_PARCELA, VALOR_PARCELA, DATA_VENCIMENTO_RECEBER, DATA_RECEBIMENTO, STATUS)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''',
+                (id_pagamento, parcela, valor_parcela, data_vencimento, None, 'Pendente'),
+            )
 
         self.conexao.commit()
         return id_pagamento
 
-    def produto(self, id_fornecedor, nome_produto, categoria, quantidade, preco_unitario):
+    def produto(self, id_fornecedor, nome_produto, id_categoria, quantidade, preco_unitario):
         self.cursor.execute(
             '''
-                INSERT INTO PRODUTO(ID_FORNECEDOR, NOME_PRODUTO, CATEGORIA, QUANTIDADE, PRECO_UNITARIO) VALUES
+                INSERT INTO PRODUTO(ID_FORNECEDOR, NOME_PRODUTO, ID_CATEGORIA, QUANTIDADE, PRECO_UNITARIO) VALUES
                 (?, ?, ?, ?, ?)
             ''',
-            (id_fornecedor, nome_produto, categoria, quantidade, preco_unitario),
+            (id_fornecedor, nome_produto, id_categoria, quantidade, preco_unitario),
         )
         self.conexao.commit()
 
-    def estoque(self, id_fornecedor, id_produto, qtde_estoque, qtde_min, data_validade, validade_dias):
+    def estoque(self, id_produto, qtde_estoque, qtde_min, data_validade, validade_dias):
         self.cursor.execute(
             '''
-                INSERT INTO ESTOQUE(ID_FORNECEDOR, ID_PRODUTO, QTDE_ESTOQUE, QTDE_MIN, DATA_VALIDADE, VALIDADE_DIAS) VALUES
-                (?, ?, ?, ?, ?, ?)
+                INSERT INTO ESTOQUE(ID_PRODUTO, QTDE_ESTOQUE, QTDE_MIN, DATA_VALIDADE, VALIDADE_DIAS) VALUES
+                (?, ?, ?, ?, ?)
             ''',
-            (id_fornecedor, id_produto, qtde_estoque, qtde_min, data_validade, validade_dias),
+            (id_produto, qtde_estoque, qtde_min, data_validade, validade_dias),
         )
         self.conexao.commit()
         return self.cursor.lastrowid

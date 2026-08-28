@@ -1,46 +1,63 @@
 import os
 import sqlite3
 
-def main():
-    conexao = None
-    cursor = None
+schema_sql = '''
+            CREATE TABLE IF NOT EXISTS SCHEMA_VERSION(
+                VERSION INTEGER PRIMARY KEY NOT NULL
+            );
 
-    try:
-        db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'SV-Py_lite_updated.db')
-        db_path = os.path.abspath(db_path)
-
-        if os.path.exists(db_path):
-            os.remove(db_path)
-
-        conexao = sqlite3.connect(db_path)
-        conexao.execute('PRAGMA foreign_keys = on')
-        cursor = conexao.cursor()
-
-        schema_sql = '''
             CREATE TABLE IF NOT EXISTS DEPARTAMENTO(
                 ID_DEPARTAMENTO INTEGER PRIMARY KEY NOT NULL,
-                NOME_DEPARTAMENTO VARCHAR(25) NOT NULL
+                NOME_DEPARTAMENTO VARCHAR(25) NOT NULL UNIQUE,
+                CHECK (length(NOME_DEPARTAMENTO) BETWEEN 1 AND 25)
+            );
+
+            CREATE TABLE IF NOT EXISTS ENDERECO(
+                ID_ENDERECO INTEGER PRIMARY KEY NOT NULL,
+                LOGRADOURO TEXT NOT NULL,
+                NUMERO TEXT,
+                COMPLEMENTO TEXT,
+                BAIRRO TEXT,
+                CIDADE TEXT NOT NULL,
+                UF TEXT NOT NULL,
+                CEP TEXT NOT NULL,
+                CHECK (length(LOGRADOURO) BETWEEN 1 AND 200),
+                CHECK (NUMERO IS NULL OR length(NUMERO) <= 10),
+                CHECK (COMPLEMENTO IS NULL OR length(COMPLEMENTO) <= 100),
+                CHECK (BAIRRO IS NULL OR length(BAIRRO) <= 100),
+                CHECK (length(CIDADE) BETWEEN 1 AND 100),
+                CHECK (length(UF) = 2),
+                CHECK (length(CEP) IN (8, 9))
             );
 
             CREATE TABLE IF NOT EXISTS CLIENTE(
                 ID_CLIENTE INTEGER PRIMARY KEY NOT NULL,
                 NOME_CLIENTE VARCHAR(30) NOT NULL,
-                ENDERECO VARCHAR(200) NOT NULL,
+                ID_ENDERECO INTEGER NOT NULL,
                 TELEFONE TEXT NOT NULL,
-                CPF_CLIENTE TEXT NOT NULL UNIQUE
+                CPF_CLIENTE TEXT NOT NULL UNIQUE,
+                FOREIGN KEY (ID_ENDERECO) REFERENCES ENDERECO(ID_ENDERECO),
+                CHECK (length(NOME_CLIENTE) BETWEEN 1 AND 30),
+                CHECK (length(TELEFONE) BETWEEN 8 AND 15),
+                CHECK (length(CPF_CLIENTE) IN (11, 14))
             );
 
             CREATE TABLE IF NOT EXISTS FORNECEDOR(
                 ID_FORNECEDOR INTEGER PRIMARY KEY NOT NULL,
                 NOME_FORNECEDOR VARCHAR(30) NOT NULL,
-                CNPJ VARCHAR(14) NOT NULL,
+                CNPJ VARCHAR(14) NOT NULL UNIQUE,
                 TELEFONE TEXT NOT NULL,
-                ENDERECO VARCHAR(200) NOT NULL
+                ID_ENDERECO INTEGER NOT NULL,
+                FOREIGN KEY (ID_ENDERECO) REFERENCES ENDERECO(ID_ENDERECO),
+                CHECK (length(NOME_FORNECEDOR) BETWEEN 1 AND 30),
+                CHECK (length(CNPJ) = 14),
+                CHECK (length(TELEFONE) BETWEEN 8 AND 15)
             );
 
             CREATE TABLE IF NOT EXISTS ESPECIALIDADE(
                 ID_ESPECIALIDADE INTEGER PRIMARY KEY NOT NULL,
-                NOME_ESPECIALIDADE VARCHAR(30) NOT NULL
+                NOME_ESPECIALIDADE VARCHAR(30) NOT NULL UNIQUE,
+                CHECK (length(NOME_ESPECIALIDADE) BETWEEN 1 AND 30)
             );
 
             CREATE TABLE IF NOT EXISTS FUNCIONARIO(
@@ -50,9 +67,14 @@ def main():
                 NOME_FUNCIONARIO VARCHAR(30) NOT NULL,
                 DATA_ADMISSAO DATE NOT NULL,
                 DATA_DEMISSAO DATE NULL,
-                ENDERECO VARCHAR(200) NOT NULL,
+                ID_ENDERECO INTEGER NOT NULL,
                 FOREIGN KEY (ID_DEPARTAMENTO) REFERENCES DEPARTAMENTO(ID_DEPARTAMENTO),
-                FOREIGN KEY (ID_ESPECIALIDADE) REFERENCES ESPECIALIDADE(ID_ESPECIALIDADE)
+                FOREIGN KEY (ID_ESPECIALIDADE) REFERENCES ESPECIALIDADE(ID_ESPECIALIDADE),
+                FOREIGN KEY (ID_ENDERECO) REFERENCES ENDERECO(ID_ENDERECO),
+                CHECK (DATA_DEMISSAO IS NULL OR substr(DATA_DEMISSAO, 7, 4) || substr(DATA_DEMISSAO, 4, 2) || substr(DATA_DEMISSAO, 1, 2) >= substr(DATA_ADMISSAO, 7, 4) || substr(DATA_ADMISSAO, 4, 2) || substr(DATA_ADMISSAO, 1, 2)),
+                CHECK (length(NOME_FUNCIONARIO) BETWEEN 1 AND 30),
+                CHECK (DATA_ADMISSAO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]'),
+                CHECK (DATA_DEMISSAO IS NULL OR DATA_DEMISSAO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS VEICULO(
@@ -62,18 +84,34 @@ def main():
                 MODELO VARCHAR(10) NOT NULL,
                 MARCA VARCHAR(30) NOT NULL,
                 CHASSIS VARCHAR(17) NOT NULL,
-                FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
+                FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+                UNIQUE (ID_VEICULO, ID_CLIENTE),
+                UNIQUE (PLACA),
+                UNIQUE (CHASSIS),
+                CHECK (length(PLACA) = 7),
+                CHECK (length(MODELO) BETWEEN 1 AND 10),
+                CHECK (length(MARCA) BETWEEN 1 AND 30),
+                CHECK (length(CHASSIS) = 17)
+            );
+
+            CREATE TABLE IF NOT EXISTS CATEGORIA_PRODUTO(
+                ID_CATEGORIA INTEGER PRIMARY KEY NOT NULL,
+                NOME_CATEGORIA VARCHAR(25) NOT NULL UNIQUE
             );
 
             CREATE TABLE IF NOT EXISTS PRODUTO(
                 ID_PRODUTO INTEGER PRIMARY KEY NOT NULL,
                 ID_FORNECEDOR INTEGER NOT NULL,
                 NOME_PRODUTO VARCHAR(25) NOT NULL,
-                CATEGORIA VARCHAR(25) NOT NULL,
+                ID_CATEGORIA INTEGER NOT NULL,
                 QUANTIDADE INTEGER NOT NULL,
                 PRECO_UNITARIO REAL NOT NULL,
                 PRECO_TOTAL REAL GENERATED ALWAYS AS (QUANTIDADE * PRECO_UNITARIO) STORED,
-                FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR)
+                FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR),
+                FOREIGN KEY (ID_CATEGORIA) REFERENCES CATEGORIA_PRODUTO(ID_CATEGORIA),
+                CHECK (QUANTIDADE >= 0),
+                CHECK (PRECO_UNITARIO >= 0),
+                CHECK (length(NOME_PRODUTO) BETWEEN 1 AND 25)
             );
 
             CREATE TABLE IF NOT EXISTS ORDEM_SERVICO(
@@ -87,14 +125,19 @@ def main():
                 VALOR_TOTAL REAL NOT NULL,
                 DESC_REPARO VARCHAR(100) NOT NULL,
                 FOREIGN KEY (ID_VEICULO) REFERENCES VEICULO(ID_VEICULO),
-                FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
+                FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+                FOREIGN KEY (ID_VEICULO, ID_CLIENTE) REFERENCES VEICULO(ID_VEICULO, ID_CLIENTE),
+                CHECK (DATA_CONCLUSAO IS NULL OR substr(DATA_CONCLUSAO, 7, 4) || substr(DATA_CONCLUSAO, 4, 2) || substr(DATA_CONCLUSAO, 1, 2) >= substr(DATA_INICIO, 7, 4) || substr(DATA_INICIO, 4, 2) || substr(DATA_INICIO, 1, 2)),
+                CHECK (TEMPO_TOTAL_REPARO IS NULL OR TEMPO_TOTAL_REPARO >= 0),
+                CHECK (VALOR_TOTAL >= 0),
+                CHECK (DATA_INICIO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]'),
+                CHECK (DATA_CONCLUSAO IS NULL OR DATA_CONCLUSAO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]'),
+                CHECK (AGENDAMENTO IS NULL OR AGENDAMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS PAGAMENTO(
                 ID_PAGAMENTO INTEGER PRIMARY KEY NOT NULL,
-                ID_CLIENTE INTEGER NULL,
-                ID_OS INTEGER NULL,
-                ID_PRODUTO INTEGER NULL,
+                ID_CLIENTE INTEGER NOT NULL,
                 METODO_PAGAMENTO VARCHAR(30) NOT NULL,
                 PARCELAS INTEGER NOT NULL DEFAULT 1,
                 DATA_PAGAMENTO DATE NOT NULL,
@@ -102,12 +145,27 @@ def main():
                 VALOR_TOTAL REAL NOT NULL,
                 REFERENCIA VARCHAR(30) NOT NULL,
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+                CHECK (PARCELAS >= 1),
+                CHECK (VALOR_TOTAL >= 0),
+                CHECK (STATUS_PAGAMENTO IN ('Pendente', 'Pago', 'Cancelado')),
+                CHECK (length(METODO_PAGAMENTO) BETWEEN 1 AND 30),
+                CHECK (length(REFERENCIA) BETWEEN 1 AND 30),
+                CHECK (DATA_PAGAMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
+            );
+
+            CREATE TABLE IF NOT EXISTS PAGAMENTO_ITEM(
+                ID_PAGAMENTO_ITEM INTEGER PRIMARY KEY NOT NULL,
+                ID_PAGAMENTO INTEGER NOT NULL,
+                ID_OS INTEGER NULL,
+                ID_PRODUTO INTEGER NULL,
+                QUANTIDADE INTEGER NOT NULL DEFAULT 1,
+                VALOR_ITEM REAL NOT NULL,
+                FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO),
                 FOREIGN KEY (ID_OS) REFERENCES ORDEM_SERVICO(ID_OS),
                 FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO),
-                CHECK (
-                    ID_OS IS NOT NULL OR ID_PRODUTO IS NOT NULL
-                ),
-                CHECK (PARCELAS >= 1)
+                CHECK ((ID_OS IS NOT NULL) <> (ID_PRODUTO IS NOT NULL)),
+                CHECK (QUANTIDADE > 0),
+                CHECK (VALOR_ITEM >= 0)
             );
 
             CREATE TABLE IF NOT EXISTS FEEDBACK(
@@ -116,7 +174,9 @@ def main():
                 AVALIACAO INTEGER NOT NULL,
                 DESCRICAO TEXT NULL,
                 DATA_FEEDBACK DATE NOT NULL,
-                FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE)
+                FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
+                CHECK (AVALIACAO BETWEEN 0 AND 10),
+                CHECK (DATA_FEEDBACK GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS CONTA_RECEBER(
@@ -130,7 +190,11 @@ def main():
                 UNIQUE (ID_PAGAMENTO, NUMERO_PARCELA),
                 FOREIGN KEY (ID_PAGAMENTO) REFERENCES PAGAMENTO(ID_PAGAMENTO),
                 CHECK (NUMERO_PARCELA >= 1),
-                CHECK (STATUS IN ('Pendente', 'Recebido', 'Vencida'))
+                CHECK (VALOR_PARCELA >= 0),
+                CHECK (STATUS IN ('Pendente', 'Recebido', 'Vencida')),
+                CHECK (STATUS <> 'Recebido' OR DATA_RECEBIMENTO IS NOT NULL),
+                CHECK (DATA_VENCIMENTO_RECEBER GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]'),
+                CHECK (DATA_RECEBIMENTO IS NULL OR DATA_RECEBIMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS CONTA_PAGAR(
@@ -138,7 +202,11 @@ def main():
                 DESCRICAO VARCHAR(100) NOT NULL,
                 VALOR REAL NOT NULL,
                 DATA_VENCIMENTO DATE NOT NULL,
-                STATUS VARCHAR(20) NOT NULL
+                STATUS VARCHAR(20) NOT NULL,
+                CHECK (VALOR >= 0),
+                CHECK (STATUS IN ('Pendente', 'Pago', 'Vencida', 'Cancelada')),
+                CHECK (length(DESCRICAO) BETWEEN 1 AND 100),
+                CHECK (DATA_VENCIMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS ATENDIMENTO(
@@ -147,7 +215,8 @@ def main():
                 ID_FUNCIONARIO INTEGER NOT NULL,
                 DATA_ATENDIMENTO DATE NOT NULL,
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
-                FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+                FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO),
+                CHECK (DATA_ATENDIMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS AGENCIAMENTO_VEICULO(
@@ -161,7 +230,15 @@ def main():
                 COMISSAO FLOAT NOT NULL,
                 STATUS VARCHAR(20) NOT NULL,
                 FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE),
-                FOREIGN KEY (ID_VEICULO) REFERENCES VEICULO(ID_VEICULO)
+                FOREIGN KEY (ID_VEICULO) REFERENCES VEICULO(ID_VEICULO),
+                FOREIGN KEY (ID_VEICULO, ID_CLIENTE) REFERENCES VEICULO(ID_VEICULO, ID_CLIENTE),
+                CHECK (substr(DATA_FIM_AGENCIAMENTO, 7, 4) || substr(DATA_FIM_AGENCIAMENTO, 4, 2) || substr(DATA_FIM_AGENCIAMENTO, 1, 2) >= substr(DATA_INICIO_AGENCIAMENTO, 7, 4) || substr(DATA_INICIO_AGENCIAMENTO, 4, 2) || substr(DATA_INICIO_AGENCIAMENTO, 1, 2)),
+                CHECK (VALOR >= 0),
+                CHECK (PRAZO_DIAS >= 0),
+                CHECK (COMISSAO >= 0),
+                CHECK (STATUS IN ('Pendente', 'Vendido', 'Cancelado')),
+                CHECK (DATA_INICIO_AGENCIAMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]'),
+                CHECK (DATA_FIM_AGENCIAMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS FOLHA_PAGAMENTO(
@@ -174,37 +251,53 @@ def main():
                 ADICIONAIS REAL NULL,
                 DESCONTOS REAL NOT NULL,
                 SALARIO_LIQUIDO REAL GENERATED ALWAYS AS ((SALARIO_BRUTO + COALESCE(ADICIONAIS, 0)) - DESCONTOS) STORED,
-                FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO)
+                FOREIGN KEY (ID_FUNCIONARIO) REFERENCES FUNCIONARIO(ID_FUNCIONARIO),
+                CHECK (MES_REFERENCIA BETWEEN 1 AND 12),
+                CHECK (SALARIO_BRUTO >= 0),
+                CHECK (COALESCE(ADICIONAIS, 0) >= 0),
+                CHECK (DESCONTOS >= 0),
+                CHECK (STATUS_PAGAMENTO IN ('Realizado', 'Programado')),
+                UNIQUE (ID_FUNCIONARIO, MES_REFERENCIA, DATA_PAGAMENTO),
+                CHECK (DATA_PAGAMENTO GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
 
             CREATE TABLE IF NOT EXISTS ESTOQUE(
                 ID_ESTOQUE INTEGER PRIMARY KEY NOT NULL,
-                ID_FORNECEDOR INTEGER NOT NULL,
                 ID_PRODUTO INTEGER NOT NULL,
                 QTDE_ESTOQUE INTEGER NOT NULL,
                 QTDE_MIN INTEGER NOT NULL,
                 DATA_VALIDADE DATE NOT NULL,
                 VALIDADE_DIAS INTEGER NOT NULL,
-                FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR),
-                FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO)
+                FOREIGN KEY (ID_PRODUTO) REFERENCES PRODUTO(ID_PRODUTO),
+                CHECK (QTDE_ESTOQUE >= 0),
+                CHECK (QTDE_MIN >= 0),
+                CHECK (VALIDADE_DIAS >= 0),
+                UNIQUE (ID_PRODUTO),
+                CHECK (DATA_VALIDADE GLOB '[0-3][0-9]-[0-1][0-9]-[0-9][0-9][0-9][0-9]')
             );
         '''
 
-        cursor.executescript(schema_sql)
-        
+def criar_banco(db_path):
+    conexao = None
+    try:
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        conexao = sqlite3.connect(db_path)
+        conexao.execute('PRAGMA foreign_keys = on')
+        conexao.executescript(schema_sql)
         conexao.commit()
+        conexao.close()
 
-    except sqlite3.DatabaseError as err:
-        print('Erro no banco de dado:', err.args)
-
-    finally:    
-        if cursor:
-            cursor.close()
+    except sqlite3.DatabaseError:
         if conexao:
-            conexao.close()
+            conexao.rollback()
+        raise
 
-if __name__ == '__main__':
-    main()
+def recriar_banco(db_path):
+    if os.path.exists(db_path):
+        os.remove(db_path)
+
+    criar_banco(db_path)
+
 
 # Tempo total vai retornar a quantidade em dias
 # A transação pode estar ligada a OS, a produto, ou aos dois, mas pelo menos um deles deve existir.
