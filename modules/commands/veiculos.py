@@ -63,7 +63,8 @@ def executar(select=None, color=None, writer_func=None):
                     while True:
                         print(f'\n{tabulate([("placa", "Utiliza a placa do veículo como filtro"),
                                 ("marca", "Retorna todos os veículos de uma marca específica"),
-                                ("modelo", "Retorna todos os veículos de um modelo específico")],
+                            ("modelo", "Retorna todos os veículos de um modelo específico"),
+                            ("combinado", "Combina marca e modelo")],
                                 headers=["Filtro", "Descrição"], tablefmt="grid", stralign="left")}\n')
 
                         opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
@@ -90,6 +91,12 @@ def executar(select=None, color=None, writer_func=None):
                             select.consulta_carro(modelo=modelo)
                             break
 
+                        elif opcao_filtro.lower() == 'combinado':
+                            marca = input('\nDigite a marca do veículo > ').strip().capitalize()
+                            modelo = input('Digite o modelo do veículo > ').strip().capitalize()
+                            select.consulta_carro(marca=marca, modelo=modelo)
+                            break
+
                 elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
                     writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os veículos registrados no sistema..........{color.END}\n\n')
                     select.consulta_carro()
@@ -104,7 +111,8 @@ def executar(select=None, color=None, writer_func=None):
                                                 ('marca', 'Filtrar pela marca do veículo'),
                                                 ('inicio', 'Filtrar pela data de início da OS'),
                                                 ('conclusao', 'Filtrar pela data de conclusão da OS'),
-                                                ('tempo_reparo', 'Filtrar pelo tempo total de reparo')],
+                                                ('tempo_reparo', 'Filtrar pelo tempo total de reparo'),
+                                                ('combinado', 'Combina dois ou mais filtros')],
                                                headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
                         opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
                         lista_filtros_os = ['cpf', 'id_cliente', 'modelo', 'marca', 'inicio', 'conclusao', 'tempo_reparo']
@@ -114,9 +122,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro.lower() == 'id_cliente':
                             registro = input('\nDigite o registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=eval(registro))
+                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas pelo(a) cliente "{nome_cliente}"..........{color.END}\n\n')
-                            select.os_cliente_veiculo(id_cliente=eval(registro))
+                            select.os_cliente_veiculo(id_cliente=int(registro))
                             break
 
                         elif opcao_filtro.lower() == 'cpf':
@@ -153,6 +161,22 @@ def executar(select=None, color=None, writer_func=None):
                             registro = input('\nDigite o tempo total de reparo do veículo (dias) > ').capitalize()
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todas OS que duraram por {registro} dias..........{color.END}\n\n')
                             select.os_cliente_veiculo(tempo_reparo=registro)
+                            break
+
+                        elif opcao_filtro.lower() == 'combinado':
+                            id_cliente = input('ID do cliente (Enter para ignorar) > ').strip()
+                            modelo = input('Modelo (Enter para ignorar) > ').strip().capitalize()
+                            marca = input('Marca (Enter para ignorar) > ').strip().capitalize()
+                            tempo_reparo = input('Tempo de reparo (Enter para ignorar) > ').strip()
+                            if not any((id_cliente, modelo, marca, tempo_reparo)):
+                                print(f'{color.LIGHT_RED}Informe pelo menos um filtro.{color.END}')
+                                continue
+                            select.os_cliente_veiculo(
+                                id_cliente=int(id_cliente) if id_cliente else None,
+                                modelo=modelo or None,
+                                marca=marca or None,
+                                tempo_reparo=int(tempo_reparo) if tempo_reparo else None,
+                            )
                             break
 
                 elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
