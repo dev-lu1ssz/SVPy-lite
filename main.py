@@ -1,10 +1,8 @@
 import modules.database_creator as database_creator
-import modules.insertions as insertions
 from modules.selections import Selectdata
 import modules.menu as menu
 from modules.commands import clientes, veiculos, funcionarios, produtos
 import os
-from tabulate import tabulate
 import sqlite3
 import time
 from modules.colors import Colors
@@ -18,15 +16,26 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database', 'SV-Py_lite_updated.db')
 color = Colors()
 
-if not DB_PATH:
-    print(f'{color.RED}Base de dados não encontrada. Criando base de dados SV-Py{color.END}')
-    database_creator.main()
-    
-    if not DB_PATH:
-        print(f'{color.RED}Ocorreu algum erro ao tentar criar a base de dados no diretório "database"{color.END}')
-        exit()
+def preparar_banco():
+    nome_banco = os.path.basename(DB_PATH)
+
+    if os.path.exists(DB_PATH):
+        resposta = input(
+            f'{color.YELLOW}O banco de dados "{nome_banco}" já existe. '
+            f'Deseja recriá-lo? Todos os dados serão apagados [S/N]: {color.END}'
+        ).strip().lower()
+
+        if resposta in ('s', 'sim', 'ss', 'yes', 'si'):
+            database_creator.recriar_banco(DB_PATH)
+            print(f'{color.LIGHT_GREEN}Banco de dados "{nome_banco}" recriado com sucesso.{color.END}')
+        else:
+            print(f'{color.LIGHT_GREEN}Banco de dados "{nome_banco}" existente será utilizado.{color.END}')
+    else:
+        database_creator.criar_banco(DB_PATH)
+        print(f'{color.LIGHT_GREEN}Banco de dados "{nome_banco}" criado com sucesso.{color.END}')
 
 try:
+    preparar_banco()
     opcao = 0
     conexao = sqlite3.connect(DB_PATH)
     conexao.execute('PRAGMA foreign_keys = on')
