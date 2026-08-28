@@ -2,9 +2,6 @@ import os
 import sqlite3
 import sys
 import time
-from turtle import color
-from turtle import color
-
 from tabulate import tabulate
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,7 +38,7 @@ def executar(select=None, color=None, writer_func=None):
         select = Selectdata(conexao)
 
     try:
-        writer(f'\n{color.GREEN}Mostrando o menu de comandos dos produtos{color.END}')
+        writer_func(f'\n{color.GREEN}Mostrando o menu de comandos dos produtos{color.END}')
         time.sleep(1)
         menu.menu_produtos()
         
@@ -76,18 +73,18 @@ def executar(select=None, color=None, writer_func=None):
                         
                         if opcao_filtro.lower() == 'nome':
                             nome = str(input('\nDigite o nome do produto > ')).capitalize()
-                            writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
+                            writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
                             select.produtos_e_fornecedores(nome_produto=nome)
                             break
                         
                         elif opcao_filtro.lower() == 'registro':
                             registro = input('\nDigite o número de registro do produto (ID) > ')
-                            writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto N° {registro}..........{color.END}\n\n')
+                            writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto N° {registro}..........{color.END}\n\n')
                             select.produtos_e_fornecedores(id_produto=registro)
                             break
                 
                 elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
-                    writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos..........{color.END}\n\n')
+                    writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos..........{color.END}\n\n')
                     select.produtos_e_fornecedores()
             
             if comando.lower() == 'estoque_min':
@@ -105,13 +102,33 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro.lower() == 'nome':
                             nome = str(input('\nDigite o nome do produto > ')).capitalize()
-                            writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
+                            writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
                             select.consulta_estoque_min(nome_produto=nome)
                             break
                 if quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
-                    writer(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos e sua quantidade em estoque..........{color.END}\n\n')
+                    writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos e sua quantidade em estoque..........{color.END}\n\n')
                     select.consulta_estoque_min()
                     select.consulta_estoque_min(abaixo=True)
+
+            elif comando.lower() == 'produtos_estoque':
+                writer_func(f'\n{color.LIGHT_GREEN}Consulta: Produtos disponíveis no estoque..........{color.END}\n\n')
+                dados = select.produtos_estoque()
+                print(tabulate(dados, headers=['PRODUTO', 'CATEGORIA', 'FORNECEDOR', 'QTDE EM ESTOQUE', 'VALIDADE (DIAS)'], tablefmt='grid', stralign='left'))
+
+            elif comando.lower() == 'categoria':
+                categoria = input('Digite a categoria do produto > ').strip()
+                dados = select.total_produtos_categoria(categoria)
+                print(tabulate(dados, headers=['CATEGORIA', 'TOTAL DE PRODUTOS', 'PREÇO TOTAL'], tablefmt='grid', stralign='left'))
+
+            elif comando.lower() == 'fornecedor':
+                nome = input('Digite o nome do fornecedor (ou Enter para ignorar) > ').strip() or None
+                cnpj = input('Digite o CNPJ (ou Enter para ignorar) > ').strip() or None
+                dados = select.consulta_fornecedor(nome=nome, cnpj=cnpj)
+                print(tabulate(dados, headers=['ID', 'NOME', 'CNPJ', 'TELEFONE', 'ID ENDEREÇO'], tablefmt='grid', stralign='left'))
+
+            elif comando.lower() == 'compra_produto':
+                dados = select.pagamento_produto()
+                print(tabulate(dados, headers=['CLIENTE', 'CPF', 'PRODUTO', 'CATEGORIA', 'FORNECEDOR', 'CNPJ', 'DATA', 'PREÇO UNITÁRIO', 'QUANTIDADE', 'VALOR TOTAL', 'STATUS', 'MÉTODO'], tablefmt='grid', stralign='left'))
     finally:
         if conexao is not None:
             conexao.close()
