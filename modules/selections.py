@@ -6,6 +6,13 @@ class Selectdata:
     def __init__(self, conexao):
         self.conexao = conexao
         self.cursor = conexao.cursor()
+
+    def _mostrar_tabela(self, registros, headers, mensagem_erro='Erro! Dados não foram encontrados'):
+        if registros:
+            print(tabulate(registros, headers=headers, tablefmt='grid', stralign='left'))
+            return registros
+        print(f'{colors.RED}{mensagem_erro}{colors.END}')
+        return []
     
     def nome_cliente(self, id_cliente): # Mostra o nome do cliente usando o ID como filtro
         query_sql = '''
@@ -21,7 +28,7 @@ class Selectdata:
         self.cursor.execute(query_sql, (id_funcionario,))
         return self.cursor.fetchone()
     
-    def client_info(self, id_cliente=None):
+    def client_info(self, id_cliente=None, cpf=None, logradouro=None, numero=None, cidade=None, uf=None, cep=None):
         query_sql = '''
                  SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE,
                      ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP
@@ -29,10 +36,34 @@ class Selectdata:
                  INNER JOIN ENDERECO ON ENDERECO.ID_ENDERECO = CLIENTE.ID_ENDERECO
         '''
         params = []
+        conditions = []
 
         if id_cliente is not None:
-            query_sql += ' WHERE ID_CLIENTE = ?'
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
+
+        if cpf is not None:
+            conditions.append('CLIENTE.CPF_CLIENTE = ?')
+            params.append(cpf)
+
+        if logradouro is not None:
+            conditions.append('ENDERECO.LOGRADOURO LIKE ?')
+            params.append(f'%{logradouro}%')
+
+        if cidade is not None:
+            conditions.append('ENDERECO.CIDADE LIKE ?')
+            params.append(f'%{cidade}%')
+
+        if uf is not None:
+            conditions.append('ENDERECO.UF = ?')
+            params.append(uf.upper())
+
+        if cep is not None:
+            conditions.append('ENDERECO.CEP = ?')
+            params.append(cep)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
 
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
@@ -70,20 +101,27 @@ class Selectdata:
                 return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
             return print(tabulate(registros, headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
     
-    def info_pagamento(self, id_cliente=None, sitaucao=None):
+    def info_pagamento(self, id_cliente=None, cpf=None, metodo_pagamento=None, sitaucao=None):
         params = []
         query_sql = '''
-            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PAGAMENTO.VALOR_TOTAL, 
+            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PAGAMENTO.VALOR_TOTAL,
             PAGAMENTO.METODO_PAGAMENTO, PAGAMENTO.STATUS_PAGAMENTO
             FROM CLIENTE
-            INNER JOIN PAGAMENTO ON PAGAMENTO.ID_CLIENTE = CLIENTE.ID_CLIENTE 
-            
+            INNER JOIN PAGAMENTO ON PAGAMENTO.ID_CLIENTE = CLIENTE.ID_CLIENTE
             '''
         conditions = []
 
         if id_cliente is not None:
             conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
+
+        if cpf is not None:
+            conditions.append('CLIENTE.CPF_CLIENTE = ?')
+            params.append(cpf)
+
+        if metodo_pagamento is not None:
+            conditions.append('PAGAMENTO.METODO_PAGAMENTO = ?')
+            params.append(metodo_pagamento)
 
         if sitaucao is not None:
             conditions.append('PAGAMENTO.STATUS_PAGAMENTO = ?')
@@ -92,8 +130,11 @@ class Selectdata:
         if conditions:
             query_sql += '\nWHERE ' + ' AND '.join(conditions)
 
-        self.cursor.execute(query_sql, params)
-        return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid', stralign='left'))
+        self.cursor.execute(query_sql, tuple(params))
+        registros = self.cursor.fetchall()
+        if registros:
+            return print(tabulate(registros, headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid', stralign='left'))
+        return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
     def consulta_carro(self, placa=None, modelo=None, marca=None):
         query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
@@ -123,19 +164,38 @@ class Selectdata:
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def consulta_produto(self, categoria=None):
-        query_sql = '''SELECT PRODUTO.ID_PRODUTO, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, PRODUTO.QUANTIDADE, 
-        PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL 
-        FROM PRODUTO 
-        INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA '''
+    def consulta_produto(self, categoria=None, nome_produto=None, preco_unitario=None, id_produto=None):
+        query_sql = '''SELECT PRODUTO.ID_PRODUTO, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, PRODUTO.QUANTIDADE,
+        PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
+        FROM PRODUTO
+        INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA'''
         params = []
-        
+        conditions = []
+
         if categoria is not None:
-            query_sql += 'WHERE CATEGORIA_PRODUTO.NOME_CATEGORIA = ?'
+            conditions.append('CATEGORIA_PRODUTO.NOME_CATEGORIA = ?')
             params.append(categoria)
 
+        if nome_produto is not None:
+            conditions.append('PRODUTO.NOME_PRODUTO LIKE ?')
+            params.append(f'%{nome_produto}%')
+
+        if preco_unitario is not None:
+            conditions.append('PRODUTO.PRECO_UNITARIO = ?')
+            params.append(preco_unitario)
+
+        if id_produto is not None:
+            conditions.append('PRODUTO.ID_PRODUTO = ?')
+            params.append(id_produto)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
+
         self.cursor.execute(query_sql, tuple(params))
-        return self.cursor.fetchall()
+        registros = self.cursor.fetchall()
+        if registros:
+            return print(tabulate(registros, headers=['ID', 'PRODUTO', 'CATEGORIA', 'QTDE', 'PREÇO UNITÁRIO', 'PREÇO TOTAL'], tablefmt='grid', stralign='left'))
+        return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
     def consulta_fornecedor(self, nome=None, cnpj=None):
         query_sql = 'SELECT * FROM FORNECEDOR '
@@ -156,10 +216,10 @@ class Selectdata:
         self.cursor.execute(query_sql, tuple(params))
         return self.cursor.fetchall()
     
-    def consulta_funcionarios(self, id_funcionario=None, nome=None, id_departamento=None, id_especialidade=None):
+    def consulta_funcionarios(self, id_funcionario=None, nome_funcionario=None, cidade=None, uf=None, cep=None, logradouro=None, data_admissao=None, data_demissao=None, nome_departamento=None, nome_especialidade=None):
         base_query = (
             'SELECT FUNCIONARIO.ID_FUNCIONARIO, FUNCIONARIO.NOME_FUNCIONARIO, DEPARTAMENTO.NOME_DEPARTAMENTO, ESPECIALIDADE.NOME_ESPECIALIDADE, '
-            'DATA_ADMISSAO, DATA_DEMISSAO, ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP  '
+            'FUNCIONARIO.DATA_ADMISSAO, FUNCIONARIO.DATA_DEMISSAO, ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP '
             'FROM FUNCIONARIO '
             'INNER JOIN DEPARTAMENTO ON FUNCIONARIO.ID_DEPARTAMENTO = DEPARTAMENTO.ID_DEPARTAMENTO '
             'INNER JOIN ESPECIALIDADE ON FUNCIONARIO.ID_ESPECIALIDADE = ESPECIALIDADE.ID_ESPECIALIDADE '
@@ -169,20 +229,44 @@ class Selectdata:
         conditions = []
 
         if id_funcionario is not None:
-            conditions.append('ID_FUNCIONARIO = ?')
+            conditions.append('FUNCIONARIO.ID_FUNCIONARIO = ?')
             params.append(id_funcionario)
 
-        if nome is not None:
-            conditions.append('NOME_FUNCIONARIO LIKE ?')
-            params.append(f'%{nome}%')
+        if nome_funcionario is not None:
+            conditions.append('FUNCIONARIO.NOME_FUNCIONARIO LIKE ?')
+            params.append(f'%{nome_funcionario}%')
 
-        if id_departamento is not None:
-            conditions.append('ID_DEPARTAMENTO = ?')
-            params.append(id_departamento)
+        if cidade is not None:
+            conditions.append('ENDERECO.CIDADE LIKE ?')
+            params.append(f'%{cidade}%')
 
-        if id_especialidade is not None:
-            conditions.append('ID_ESPECIALIDADE = ?')
-            params.append(id_especialidade)
+        if uf is not None:
+            conditions.append('ENDERECO.UF = ?')
+            params.append(uf.upper())
+
+        if cep is not None:
+            conditions.append('ENDERECO.CEP = ?')
+            params.append(cep)
+
+        if logradouro is not None:
+            conditions.append('ENDERECO.LOGRADOURO LIKE ?')
+            params.append(f'%{logradouro}%')
+
+        if data_admissao is not None:
+            conditions.append('FUNCIONARIO.DATA_ADMISSAO = ?')
+            params.append(data_admissao)
+
+        if data_demissao is not None:
+            conditions.append('FUNCIONARIO.DATA_DEMISSAO = ?')
+            params.append(data_demissao)
+
+        if nome_departamento is not None:
+            conditions.append('DEPARTAMENTO.NOME_DEPARTAMENTO LIKE ?')
+            params.append(f'%{nome_departamento}%')
+
+        if nome_especialidade is not None:
+            conditions.append('ESPECIALIDADE.NOME_ESPECIALIDADE LIKE ?')
+            params.append(f'%{nome_especialidade}%')
 
         class FuncQuery:
             def __init__(self, cursor, base_query, conditions, params):
@@ -214,17 +298,28 @@ class Selectdata:
             headers = ['ID', 'NOME', 'DEPARTAMENTO', 'ESPECIALIDADE', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'LOGRADOURO', 'NÚMERO', 'CIDADE', 'UF', 'CEP']
 
             def all(self):
-                return print(tabulate(self._build_and_exec(), headers=self.headers, tablefmt='grid', stralign='left'))
+                registros = self._build_and_exec()
+                if registros:
+                    return print(tabulate(registros, headers=self.headers, tablefmt='grid', stralign='left'))
+                return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
             def ativos(self):
-                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NULL'), headers=self.headers, tablefmt='grid', stralign='left'))
+                registros = self._build_and_exec('DATA_DEMISSAO IS NULL')
+                if registros:
+                    return print(tabulate(registros, headers=self.headers, tablefmt='grid', stralign='left'))
+                return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
             def demitidos(self):
-                return print(tabulate(self._build_and_exec('DATA_DEMISSAO IS NOT NULL'), headers=self.headers, tablefmt='grid', stralign='left'))
+                registros = self._build_and_exec('DATA_DEMISSAO IS NOT NULL')
+                if registros:
+                    return print(tabulate(registros, headers=self.headers, tablefmt='grid', stralign='left'))
+                return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
             def by_id(self, idv):
                 registro = self._build_and_exec('FUNCIONARIO.ID_FUNCIONARIO = ?', [idv], single=True)
-                return print(tabulate([registro] if registro else [], headers=self.headers, tablefmt='grid', stralign='left'))
+                if registro:
+                    return print(tabulate([registro], headers=self.headers, tablefmt='grid', stralign='left'))
+                return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
@@ -301,7 +396,7 @@ class Selectdata:
         self.cursor.execute(query_sql, (salario,))
         return self.cursor.fetchall()
 
-    def status_agenciamento(self, status=None, id_cliente=None):
+    def status_agenciamento(self, status=None, id_cliente=None, nome_cliente=None, modelo_veiculo=None):
         query_sql = f'''
             SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_INICIO_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
             FROM AGENCIAMENTO_VEICULO
@@ -313,22 +408,29 @@ class Selectdata:
         if status is not None:
             conditions.append('AGENCIAMENTO_VEICULO.STATUS = ?')
             params.append(status)
-            
+
         if id_cliente is not None:
             conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
 
+        if nome_cliente is not None:
+            conditions.append('CLIENTE.NOME_CLIENTE LIKE ?')
+            params.append(f'%{nome_cliente}%')
+
+        if modelo_veiculo is not None:
+            conditions.append('VEICULO.MODELO LIKE ?')
+            params.append(f'%{modelo_veiculo}%')
+
         if conditions:
             query_sql += ' WHERE ' + ' AND '.join(conditions)
-        
+
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
         if saida:
             return print(tabulate(saida, headers=['ID', 'CLIENTE', 'MODELO DO VEÍCULO', 'DATA DE AGEN.', 'STATUS AGEN.'], tablefmt='grid', stralign='left'))
-        else:
-            return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
+        return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def clientes_e_veiculos(self, id_cliente=None):
+    def clientes_e_veiculos(self, id_cliente=None, nome_cliente=None):
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE, VEICULO.MODELO, VEICULO.MARCA
             FROM CLIENTE
@@ -336,21 +438,24 @@ class Selectdata:
         '''
         params = []
         conditions = []
-        
+
         if id_cliente is not None:
             conditions.append('CLIENTE.ID_CLIENTE = ?')
             params.append(id_cliente)
 
+        if nome_cliente is not None:
+            conditions.append('CLIENTE.NOME_CLIENTE LIKE ?')
+            params.append(f'%{nome_cliente}%')
+
         if conditions:
             query_sql += ' WHERE ' + ' AND '.join(conditions)
-        
+
         self.cursor.execute(query_sql, tuple(params))
         saida = self.cursor.fetchall()
-        
+
         if saida:
             return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'TELEFONE', 'MODELO DO VEICULO', 'MARCA DO VEICULO'], tablefmt='grid', stralign='left'))
-        else:
-            print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
+        return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
     def produtos_e_fornecedores(self, nome_produto=None, id_produto=None):
         query_sql = '''
@@ -536,35 +641,84 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
         
-    def qtde_veiculo_cliente(self):
+    def qtde_veiculo_cliente(self, nome_cliente=None, cpf_cliente=None, id_cliente=None, qtde_veiculos=None):
         query_sql = '''
-            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
+            SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
             COUNT(VEICULO.ID_VEICULO) AS QTDE_VEICULOS
             FROM CLIENTE
             LEFT JOIN VEICULO ON CLIENTE.ID_CLIENTE = VEICULO.ID_CLIENTE
-            GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE
-            ORDER BY QTDE_VEICULOS DESC
         '''
-        
-        self.cursor.execute(query_sql)
-        saida = self.cursor.fetchall()
-        
-        if saida:
-            return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'QTDE VEICULOS'], tablefmt='grid', stralign='left'))
-        else:
-            print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
+        params = []
+        conditions = []
 
-    def os_pcliente(self):
+        if id_cliente is not None:
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
+            params.append(id_cliente)
+
+        if nome_cliente is not None:
+            conditions.append('CLIENTE.NOME_CLIENTE LIKE ?')
+            params.append(f'%{nome_cliente}%')
+
+        if cpf_cliente is not None:
+            conditions.append('CLIENTE.CPF_CLIENTE = ?')
+            params.append(cpf_cliente)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
+
+        query_sql += ' GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE'
+
+        if qtde_veiculos is not None:
+            query_sql += ' HAVING COUNT(VEICULO.ID_VEICULO) = ?'
+            params.append(qtde_veiculos)
+
+        query_sql += ' ORDER BY QTDE_VEICULOS DESC'
+
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+
+        if saida:
+            return print(tabulate(saida, headers=['REGISTRO', 'CLIENTE', 'CPF', 'QTDE VEICULOS'], tablefmt='grid', stralign='left'))
+        return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
+
+    def os_pcliente(self, nome_cliente=None, cpf_cliente=None, id_cliente=None, qtde_os=None):
         query_sql = '''
-            SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
+            SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
             COUNT(ORDEM_SERVICO.ID_OS) AS QTDE_OS
             FROM CLIENTE
             LEFT JOIN ORDEM_SERVICO ON CLIENTE.ID_CLIENTE = ORDEM_SERVICO.ID_CLIENTE
-            GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE
-            ORDER BY QTDE_OS DESC;
         '''
-        self.cursor.execute(query_sql)
-        return self.cursor.fetchall()
+        params = []
+        conditions = []
+
+        if id_cliente is not None:
+            conditions.append('CLIENTE.ID_CLIENTE = ?')
+            params.append(id_cliente)
+
+        if nome_cliente is not None:
+            conditions.append('CLIENTE.NOME_CLIENTE LIKE ?')
+            params.append(f'%{nome_cliente}%')
+
+        if cpf_cliente is not None:
+            conditions.append('CLIENTE.CPF_CLIENTE = ?')
+            params.append(cpf_cliente)
+
+        if conditions:
+            query_sql += ' WHERE ' + ' AND '.join(conditions)
+
+        query_sql += ' GROUP BY CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE'
+
+        if qtde_os is not None:
+            query_sql += ' HAVING COUNT(ORDEM_SERVICO.ID_OS) = ?'
+            params.append(qtde_os)
+
+        query_sql += ' ORDER BY QTDE_OS DESC;'
+
+        self.cursor.execute(query_sql, tuple(params))
+        saida = self.cursor.fetchall()
+        if saida:
+            return print(tabulate(saida, headers=['REGISTRO', 'CLIENTE', 'CPF', 'QTDE ORDENS DE SERVIÇO'], tablefmt='grid', stralign='left'))
+        return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def total_pagamentos_metodo(self, metodo):
         query_sql = '''

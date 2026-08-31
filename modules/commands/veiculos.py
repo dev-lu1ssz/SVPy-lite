@@ -54,7 +54,7 @@ def executar(select=None, color=None, writer_func=None):
 
         while True:
             print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
-            comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
+            comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands/veiculos >{color.END} '))
             lista_comandos = ['veiculos', 'ordem_servico', 'back', 'menu']
 
             if comando.lower() not in lista_comandos:

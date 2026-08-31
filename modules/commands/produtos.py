@@ -44,7 +44,7 @@ def executar(select=None, color=None, writer_func=None):
         
         while True:
             print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
-            comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
+            comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands/produtos >{color.END} '))
             listas_comandos_produtos = ['produtos', 'minimo', 'compras', 'estoque', 'categoria', 'fornecedor', 'back', 'menu']
             
             if comando.lower() == 'back':
@@ -61,7 +61,9 @@ def executar(select=None, color=None, writer_func=None):
                 
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     print('\n' + tabulate([('nome', 'Filtrar utilizando o nome do produto'),
-                                            ('registro', 'Filtrar utilizando o número de registro (ID) do produto'),
+                                            ('categoria', 'Filtrar pela categoria do produto'),
+                                            ('preco', 'Filtrar pelo preço unitário do produto'),
+                                            ('registro', 'Filtrar utilizando o número de registro do produto'),
                                             ('back', 'Volta para o menu de comandos')],
                                             headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='center') + '\n')
                     
@@ -69,7 +71,7 @@ def executar(select=None, color=None, writer_func=None):
                         opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
                         if opcao_filtro == 'back':
                             break
-                        lista_opcao_filtro = ['nome', 'registro']
+                        lista_opcao_filtro = ['nome', 'categoria', 'preco', 'registro']
                         
                         if opcao_filtro not in lista_opcao_filtro:
                             print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
@@ -77,13 +79,25 @@ def executar(select=None, color=None, writer_func=None):
                         if opcao_filtro.lower() == 'nome':
                             nome = str(input('\nDigite o nome do produto > ')).capitalize()
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto "{nome}" no banco de dados..........{color.END}\n\n')
-                            select.produtos_e_fornecedores(nome_produto=nome)
+                            select.consulta_produto(nome_produto=nome)
+                            break
+
+                        elif opcao_filtro.lower() == 'categoria':
+                            categoria = str(input('\nDigite a categoria do produto > ')).capitalize()
+                            writer_func(f'\n{color.LIGHT_GREEN}Consulta: Produtos da categoria "{categoria}"..........{color.END}\n\n')
+                            select.consulta_produto(categoria=categoria)
+                            break
+
+                        elif opcao_filtro.lower() == 'preco':
+                            preco = float(input('\nDigite o preço unitário do produto > '))
+                            writer_func(f'\n{color.LIGHT_GREEN}Consulta: Produtos com preço unitário "{preco}"..........{color.END}\n\n')
+                            select.consulta_produto(preco_unitario=preco)
                             break
                         
                         elif opcao_filtro.lower() == 'registro':
-                            registro = input('\nDigite o número de registro do produto (ID) > ')
+                            registro = int(input('\nDigite o número de registro do produto > '))
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros do produto N° {registro}..........{color.END}\n\n')
-                            select.produtos_e_fornecedores(id_produto=registro)
+                            select.consulta_produto(id_produto=registro)
                             break
                 
                 elif quest_filtro.lower() in ('nao', 'não', 'nn', 'n', 'no'):
