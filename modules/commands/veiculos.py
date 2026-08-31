@@ -53,7 +53,7 @@ def executar(select=None, color=None, writer_func=None):
         menu.menu_veiculos()
 
         while True:
-            print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
+            print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
             lista_comandos = ['info_veiculo', 'ordem_servico', 'back', 'menu']
 
@@ -61,7 +61,7 @@ def executar(select=None, color=None, writer_func=None):
                 print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
 
             if comando.lower() == 'back':
-                break
+                return
 
             elif comando.lower() == 'menu':
                 menu.menu_veiculos()
@@ -73,13 +73,16 @@ def executar(select=None, color=None, writer_func=None):
                         print(f'\n{tabulate([("placa", "Utiliza a placa do veículo como filtro"),
                                 ("marca", "Retorna todos os veículos de uma marca específica"),
                             ("modelo", "Retorna todos os veículos de um modelo específico"),
-                            ("combinado", "Combina marca e modelo")],
+                            ("combinado", "Combina marca e modelo"),
+                            ("back", "Volta para o menu de comandos")],
                                 headers=["Filtro", "Descrição"], tablefmt="grid", stralign="left")}\n')
 
-                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
+                        if opcao_filtro == 'back':
+                            break
                         lista_filtros_veiculos = ['placa', 'marca', 'modelo']
 
-                        if opcao_filtro not in lista_filtros_veiculos:
+                        if opcao_filtro not in lista_filtros_veiculos and opcao_filtro != 'combinado':
                             print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
 
                         if opcao_filtro.lower() == 'placa':
@@ -121,12 +124,15 @@ def executar(select=None, color=None, writer_func=None):
                                                 ('inicio', 'Filtrar pela data de início da OS'),
                                                 ('conclusao', 'Filtrar pela data de conclusão da OS'),
                                                 ('tempo_reparo', 'Filtrar pelo tempo total de reparo'),
-                                                ('combinado', 'Combina dois ou mais filtros')],
+                                                ('combinado', 'Combina dois ou mais filtros'),
+                                                ('back', 'Volta para o menu de comandos')],
                                                headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
-                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
+                        if opcao_filtro == 'back':
+                            break
                         lista_filtros_os = ['cpf', 'id_cliente', 'modelo', 'marca', 'inicio', 'conclusao', 'tempo_reparo']
 
-                        if opcao_filtro not in lista_filtros_os:
+                        if opcao_filtro not in lista_filtros_os and opcao_filtro != 'combinado':
                             print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
 
                         if opcao_filtro.lower() == 'id_cliente':

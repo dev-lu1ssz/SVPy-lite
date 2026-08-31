@@ -43,12 +43,12 @@ def executar(select=None, color=None, writer_func=None):
         menu.menu_produtos()
         
         while True:
-            print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
+            print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
             listas_comandos_produtos = ['info_produtos', 'estoque_min', 'compra_produto', 'produtos_estoque', 'categoria', 'fornecedor', 'back', 'menu']
             
             if comando.lower() == 'back':
-                break
+                return
             
             elif comando.lower() == 'menu':
                 menu.menu_produtos()
@@ -61,11 +61,14 @@ def executar(select=None, color=None, writer_func=None):
                 
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     print('\n' + tabulate([('nome', 'Filtrar utilizando o nome do produto'),
-                                            ('registro', 'Filtrar utilizando o número de registro (ID) do produto')],
+                                            ('registro', 'Filtrar utilizando o número de registro (ID) do produto'),
+                                            ('back', 'Volta para o menu de comandos')],
                                             headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='center') + '\n')
                     
                     while True:
-                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
+                        if opcao_filtro == 'back':
+                            break
                         lista_opcao_filtro = ['nome', 'registro']
                         
                         if opcao_filtro not in lista_opcao_filtro:
@@ -91,10 +94,13 @@ def executar(select=None, color=None, writer_func=None):
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
-                    print('\n' + tabulate([('nome', 'Filtrar utilizando o nome do produto')],
+                    print('\n' + tabulate([('nome', 'Filtrar utilizando o nome do produto'),
+                                            ('back', 'Volta para o menu de comandos')],
                                         headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='center') + '\n')
                     while True:
-                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                        opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
+                        if opcao_filtro == 'back':
+                            break
                         lista_opcao_filtro = ['nome']
 
                         if opcao_filtro not in lista_opcao_filtro:

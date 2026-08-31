@@ -8,7 +8,7 @@ def menu_clientes():
                                 ('atendimento', 'Traz informações sobre o atendimento ao cliente'),
                                 ('qtde_veiculos', 'Traz informações sobre a quantidade de veículos que cada cliente possui'),
                                 ('menu', 'Mostra novamente o menu de comandos'),
-                                ('back', 'Volta para o menu principal do script')]
+                                ('back', 'Volta para o menu de categorias')]
     
     tabela = tabulate(lista_consulta_clientes, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
@@ -17,7 +17,7 @@ def menu_veiculos():
     lista_consulta_veiculos = [('info_veiculo', 'Traz informações sobre os veículos que estão cadastrados no sistema'),
                                ('ordem_servico', 'Traz informações sobre ordens de serviços realizadas'),
                                ('menu', 'Mostra novamente o menu de comandos'),
-                               ('back', 'Volta para o menu principal do script')]
+                               ('back', 'Volta para o menu de categorias')]
     tabela = tabulate(lista_consulta_veiculos, headers=['COMANDO', 'DESCRIÇÃO'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
 

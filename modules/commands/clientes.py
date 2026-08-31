@@ -12,7 +12,7 @@ if BASE_DIR not in sys.path:
 import modules.menu as menu
 from modules.colors import Colors
 from modules.selections import Selectdata
-
+from modules.commands.funcionarios import obter_nome_funcionario
 
 DB_PATH = os.path.join(BASE_DIR, 'database', 'SV-Py_lite_updated.db')
 
@@ -53,7 +53,7 @@ def executar(select=None, color=None, writer_func=None):
         menu.menu_clientes()
 
         while True:
-            print('\nSelecione uma das opções - Digite "back" para voltar ao menu principal')
+            print('\nSelecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
             lista_comandos = ['info_cliente', 'cliente_ult_os', 'info_pagamento', 'cliente_agenciamento', 'atendimento', 'qtde_veiculos', 'back', 'menu']
 
@@ -61,7 +61,7 @@ def executar(select=None, color=None, writer_func=None):
                 print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
 
             if comando.lower() == 'back':
-                break
+                return
 
             elif comando.lower() == 'menu':
                 menu.menu_clientes()
@@ -87,12 +87,16 @@ def executar(select=None, color=None, writer_func=None):
                     while True:
                         print('\n' + tabulate([('id', 'Filtrar usuário pelo número de registro'),
                                                ('ultimo', 'Trazer apenas a última OS registrada'),
-                                               ('combinado', 'Combina os dois filtros de consulta')],
+                                               ('combinado', 'Combina os dois filtros de consulta'),
+                                               ('back', 'Volta para o menu de comandos')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
 
-                        opcao_filtro = str(input('\nEscolha o filtro que deseja utilizar > '))
+                        opcao_filtro = str(input('\nEscolha o filtro que deseja utilizar > ')).strip().lower()
 
-                        if opcao_filtro.lower() == 'id':
+                        if opcao_filtro == 'back':
+                            break
+
+                        if opcao_filtro == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
                             nome_cliente = obter_nome_cliente(select, registro, color)
                             if nome_cliente is None:
@@ -125,12 +129,16 @@ def executar(select=None, color=None, writer_func=None):
                     while True:
                         print('\n' + tabulate([('id', 'Filtrar usuário pelo número de registro'),
                                                ('situação', 'Filtra pela situação do pagamento (Pendente, Pago)'),
-                                               ('combinado', 'Combina ID do cliente e situação')],
+                                               ('combinado', 'Combina ID do cliente e situação'),
+                                               ('back', 'Volta para o menu de comandos')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
 
-                        opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                        opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
 
-                        if opcao_filtro.lower() == 'id':
+                        if opcao_filtro == 'back':
+                            break
+
+                        if opcao_filtro == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
                             nome_cliente = obter_nome_cliente(select, registro, color)
                             if nome_cliente is None:
@@ -166,10 +174,13 @@ def executar(select=None, color=None, writer_func=None):
                     while True:
                         print('\n' + tabulate([('id', 'Filtrar pelo número de registro do cliente'),
                                                ('status', 'Filtrar pelo status do agenciamento (Pendente/Vendido)'),
-                                               ('combinado', 'Combina ID do cliente e status')],
+                                               ('combinado', 'Combina ID do cliente e status'),
+                                               ('back', 'Volta para o menu de comandos')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
-                        opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
-                        if opcao_filtro.lower() == 'id':
+                        opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
+                        if opcao_filtro == 'back':
+                            break
+                        if opcao_filtro == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
                             nome_cliente = obter_nome_cliente(select, registro, color)
                             if nome_cliente is None:
@@ -205,9 +216,13 @@ def executar(select=None, color=None, writer_func=None):
                     while True:
                         print('\n' + tabulate([('id_cliente', 'Filtrar pelo número de registro do cliente'),
                                                ('id_funcionario', 'Filtrar pelo número de registro do funcionário'),
-                                               ('combinado', 'Combina cliente e funcionário')],
+                                               ('combinado', 'Combina cliente e funcionário'),
+                                               ('back', 'Volta para o menu de comandos')],
                                               headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
-                        opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
+                        opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
+
+                        if opcao_filtro == 'back':
+                            break
 
                         if opcao_filtro == 'id_cliente':
                             registro = input('Digite o número de registro do cliente (ID) > ')

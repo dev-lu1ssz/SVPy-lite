@@ -53,11 +53,11 @@ def executar(select=None, color=None, writer_func=None):
         menu.menu_funcionarios()
 
         while True:
-            print('Selecione uma das opções - Digite "back" para voltar ao menu principal')
+            print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
 
             if comando.lower() == 'back':
-                break
+                return
 
             elif comando.lower() == 'menu':
                 menu.menu_funcionarios()
@@ -74,10 +74,13 @@ def executar(select=None, color=None, writer_func=None):
                     while True:
                         print('\n' + tabulate([('funcionarios_ativos', 'Mostra os funcionarios ainda ativos na empresa'),
                                                 ('funcionarios_desligados', 'Mostra os funcionários que foram demitidos da empresa'),
-                                                ('id_funcionario', 'Procurar por um funcionário específico usando o número de registro (ID)')],
+                                                ('id_funcionario', 'Procurar por um funcionário específico usando o número de registro (ID)'),
+                                                ('back', 'Volta para o menu de comandos')],
                                                headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
 
-                        quest_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END}: '))
+                        quest_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END}: ')).strip().lower()
+                        if quest_filtro == 'back':
+                            break
                         lista_filtro = ['funcionarios_ativos', 'funcionarios_desligados', 'id_funcionario', 'todos']
 
                         if quest_filtro not in lista_filtro:

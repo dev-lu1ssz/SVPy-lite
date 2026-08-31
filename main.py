@@ -54,28 +54,29 @@ try:
 
             if opcao not in (1, 2):
                 print(f'{color.LIGHT_RED}\nOpção inválida! Digite uma opção entre 1 e 2.{color.END}')
-            
+
             elif opcao == 1:
-                writer(f'{color.NEGATIVE}\nEscolha uma categoria para as consultas:{color.END}\n')
-                menu.categorias()
-                
-                categoria = str(input(f'{color.NEGATIVE}SVPy-lite >{color.END} '))
-                categorias_disponiveis = ['clientes', 'veiculos', 'funcionarios', 'produtos']
-                
-                if categoria.lower() not in categorias_disponiveis:
-                    print(f'\n{color.LIGHT_RED}Escolha uma categoria que esteja disponível na lista{color.END}\n')
-                
-                elif categoria.lower() == 'clientes':
-                    clientes.executar(select=select, color=color, writer_func=writer)
+                while True:
+                    writer(f'{color.NEGATIVE}\nEscolha uma categoria para as consultas:{color.END}\n')
+                    menu.categorias()
 
-                elif categoria.lower() == 'veiculos':
-                    veiculos.executar(select=select, color=color, writer_func=writer)
+                    categoria = str(input(f'{color.NEGATIVE}SVPy-lite >{color.END} ')).strip().lower()
+                    categorias_disponiveis = ['clientes', 'veiculos', 'funcionarios', 'produtos']
 
-                elif categoria.lower() == 'funcionarios':
-                    funcionarios.executar(select=select, color=color, writer_func=writer)
+                    if categoria not in categorias_disponiveis:
+                        print(f'\n{color.LIGHT_RED}Escolha uma categoria que esteja disponível na lista{color.END}\n')
+                        continue
 
-                elif categoria.lower() == 'produtos':
-                    produtos.executar(select=select, color=color, writer_func=writer)
+                    if categoria == 'clientes':
+                        clientes.executar(select=select, color=color, writer_func=writer)
+                    elif categoria == 'veiculos':
+                        veiculos.executar(select=select, color=color, writer_func=writer)
+                    elif categoria == 'funcionarios':
+                        funcionarios.executar(select=select, color=color, writer_func=writer)
+                    elif categoria == 'produtos':
+                        produtos.executar(select=select, color=color, writer_func=writer)
+
+                    break
 
             elif opcao == 2:
                 print(f'\n{color.LIGHT_GREEN}Saindo do sistema SV-Py Lite...{color.END}\n')
