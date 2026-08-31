@@ -6,6 +6,7 @@ import os
 import sqlite3
 import time
 from modules.colors import Colors
+import modules.banner as banner
 
 def writer(a):
     for i in a:
@@ -21,7 +22,7 @@ def preparar_banco():
 
     if os.path.exists(DB_PATH):
         resposta = input(
-            f'{color.YELLOW}O banco de dados "{nome_banco}" já existe. '
+            f'\n{color.YELLOW}O banco de dados "{nome_banco}" já existe. '
             f'Deseja recriá-lo? Todos os dados serão apagados [S/N]: {color.END}'
         ).strip().lower()
 
@@ -36,6 +37,7 @@ def preparar_banco():
 
 try:
     preparar_banco()
+    banner.main()
     opcao = 0
     conexao = sqlite3.connect(DB_PATH)
     conexao.execute('PRAGMA foreign_keys = on')
