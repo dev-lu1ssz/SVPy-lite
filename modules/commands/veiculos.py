@@ -29,6 +29,15 @@ def conectar_banco():
     return conexao
 
 
+def obter_nome_cliente(select, registro, color):
+    resultado = select.nome_cliente(id_cliente=int(registro))
+    if resultado is None:
+        print(f'{color.RED}Erro! Nenhum cliente encontrado com o ID {registro}. Tente outro valor.{color.END}')
+        return None
+    nome_cliente, = resultado
+    return nome_cliente
+
+
 def executar(select=None, color=None, writer_func=None):
     color = color or Colors()
     writer_func = writer_func or writer
@@ -122,7 +131,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro.lower() == 'id_cliente':
                             registro = input('\nDigite o registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                            nome_cliente = obter_nome_cliente(select, registro, color)
+                            if nome_cliente is None:
+                                continue
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todas OS solicitadas pelo(a) cliente "{nome_cliente}"..........{color.END}\n\n')
                             select.os_cliente_veiculo(id_cliente=int(registro))
                             break

@@ -29,6 +29,15 @@ def conectar_banco():
     return conexao
 
 
+def obter_nome_funcionario(select, registro, color):
+    resultado = select.funcionarios(id_funcionario=int(registro))
+    if resultado is None:
+        print(f'{color.RED}Erro! Nenhum funcionário encontrado com o ID {registro}. Tente outro valor.{color.END}')
+        return None
+    nome_funcionario, = resultado
+    return nome_funcionario
+
+
 def executar(select=None, color=None, writer_func=None):
     color = color or Colors()
     writer_func = writer_func or writer
@@ -86,7 +95,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         elif quest_filtro == 'id_funcionario':
                             id_funcionario = input('\nDigite o número de registro do funcionário (ID) > ')
-                            nome_funcioario, = select.funcionarios(id_funcionario=int(id_funcionario))
+                            nome_funcioario = obter_nome_funcionario(select, id_funcionario, color)
+                            if nome_funcioario is None:
+                                continue
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Informações sobre o funcionário "{nome_funcioario}"..........{color.END}\n\n')
                             op_func.by_id(id_funcionario)
                             break

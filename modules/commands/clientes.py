@@ -29,6 +29,15 @@ def conectar_banco():
     return conexao
 
 
+def obter_nome_cliente(select, registro, color):
+    resultado = select.nome_cliente(id_cliente=int(registro))
+    if resultado is None:
+        print(f'{color.RED}Erro! Nenhum cliente encontrado com o ID {registro}. Tente outro valor.{color.END}')
+        return None
+    nome_cliente, = resultado
+    return nome_cliente
+
+
 def executar(select=None, color=None, writer_func=None):
     color = color or Colors()
     writer_func = writer_func or writer
@@ -62,7 +71,9 @@ def executar(select=None, color=None, writer_func=None):
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
                         registro = input('\nDigite o número de registro do cliente (ID) > ')
-                        nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                        nome_cliente = obter_nome_cliente(select, registro, color)
+                        if nome_cliente is None:
+                            continue
                         writer_func(f'{color.LIGHT_GREEN}\nConsulta: Cadastro do(a) cliente "{nome_cliente}" ..........{color.END}\n\n')
                         select.client_info(int(registro))
                         break
@@ -83,7 +94,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro.lower() == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                            nome_cliente = obter_nome_cliente(select, registro, color)
+                            if nome_cliente is None:
+                                continue
                             writer_func(f'\nConsulta: Todas OS solicitadas pelo(a) cliente "{nome_cliente}"............\n\n')
                             select.cliente_ult_os(id_cliente=int(registro))
                             break
@@ -95,7 +108,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         elif opcao_filtro.lower() == 'combinado':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                            nome_cliente = obter_nome_cliente(select, registro, color)
+                            if nome_cliente is None:
+                                continue
                             writer_func(f'\nConsulta: Última OS solicitada pelo(a) cliente "{nome_cliente}"............\n\n')
                             select.cliente_ult_os(id_cliente=int(registro), apenas_ultimo=True)
                             break
@@ -117,7 +132,9 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro.lower() == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                            nome_cliente = obter_nome_cliente(select, registro, color)
+                            if nome_cliente is None:
+                                continue
                             writer_func(f'\nConsulta: Todos os pagamentos realizados pelo cliente "{nome_cliente}"............\n\n')
                             select.info_pagamento(id_cliente=int(registro))
                             break
@@ -154,7 +171,9 @@ def executar(select=None, color=None, writer_func=None):
                         opcao_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} '))
                         if opcao_filtro.lower() == 'id':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                            nome_cliente = obter_nome_cliente(select, registro, color)
+                            if nome_cliente is None:
+                                continue
                             writer_func(f'\nConsulta: Todo agenciamento solicitado pelo(a) cliente "{nome_cliente}"............\n\n')
                             select.status_agenciamento(id_cliente=int(registro))
                             break
@@ -192,14 +211,18 @@ def executar(select=None, color=None, writer_func=None):
 
                         if opcao_filtro == 'id_cliente':
                             registro = input('Digite o número de registro do cliente (ID) > ')
-                            nome_cliente, = select.nome_cliente(id_cliente=int(registro))
+                            nome_cliente = obter_nome_cliente(select, registro, color)
+                            if nome_cliente is None:
+                                continue
                             writer_func(f'\nConsulta: Todos os atendimentos realizados para o cliente "{nome_cliente}"............\n\n')
                             select.atendimento_ao_cliente(id_cliente=int(registro))
                             break
 
                         elif opcao_filtro == 'id_funcionario':
                             registro = input('Digite o número de registro do funcionário (ID) > ')
-                            nome_funcionario, = select.funcionarios(int(registro.strip()))
+                            nome_funcionario = obter_nome_funcionario(select, registro, color)
+                            if nome_funcionario is None:
+                                continue
                             writer_func(f'{color.LIGHT_GREEN}\nConsulta: Todos atendimentos realizados pelo funcionário "{nome_funcionario}" ..........{color.END}\n\n')
                             select.atendimento_ao_cliente(id_funcionario=int(registro))
                             break

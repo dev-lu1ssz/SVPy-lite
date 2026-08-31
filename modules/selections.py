@@ -105,10 +105,16 @@ class Selectdata:
         if apenas_ultimo:
             query_sql += adc_ultimo
             self.cursor.execute(query_sql, params)
-            return print(tabulate([self.cursor.fetchone()]  , headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
+            registro = self.cursor.fetchone()
+            if registro is None:
+                return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
+            return print(tabulate([registro], headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
         else:
             self.cursor.execute(query_sql, params)
-            return print(tabulate(self.cursor.fetchall(), headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
+            registros = self.cursor.fetchall()
+            if not registros:
+                return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
+            return print(tabulate(registros, headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
     
     def info_pagamento(self, id_cliente=None, sitaucao=None):
         params = []
