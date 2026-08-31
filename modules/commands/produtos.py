@@ -45,7 +45,7 @@ def executar(select=None, color=None, writer_func=None):
         while True:
             print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
-            listas_comandos_produtos = ['info_produtos', 'estoque_min', 'compra_produto', 'produtos_estoque', 'categoria', 'fornecedor', 'back', 'menu']
+            listas_comandos_produtos = ['produtos', 'minimo', 'compras', 'estoque', 'categoria', 'fornecedor', 'back', 'menu']
             
             if comando.lower() == 'back':
                 return
@@ -56,7 +56,7 @@ def executar(select=None, color=None, writer_func=None):
             if comando.lower() not in listas_comandos_produtos:
                 print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
             
-            if comando.lower() == 'info_produtos':
+            if comando.lower() == 'produtos':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
@@ -90,7 +90,7 @@ def executar(select=None, color=None, writer_func=None):
                     writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os registros de produtos..........{color.END}\n\n')
                     select.produtos_e_fornecedores()
             
-            if comando.lower() == 'estoque_min':
+            if comando.lower() == 'minimo':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
@@ -116,7 +116,7 @@ def executar(select=None, color=None, writer_func=None):
                     select.consulta_estoque_min()
                     select.consulta_estoque_min(abaixo=True)
 
-            elif comando.lower() == 'produtos_estoque':
+            elif comando.lower() == 'compras':
                 writer_func(f'\n{color.LIGHT_GREEN}Consulta: Produtos disponíveis no estoque..........{color.END}\n\n')
                 dados = select.produtos_estoque()
                 print(tabulate(dados, headers=['PRODUTO', 'CATEGORIA', 'FORNECEDOR', 'QTDE EM ESTOQUE', 'VALIDADE (DIAS)'], tablefmt='grid', stralign='left'))

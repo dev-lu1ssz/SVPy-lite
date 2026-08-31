@@ -55,7 +55,7 @@ def executar(select=None, color=None, writer_func=None):
         while True:
             print('Selecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
-            lista_comandos = ['info_veiculo', 'ordem_servico', 'back', 'menu']
+            lista_comandos = ['veiculos', 'ordem_servico', 'back', 'menu']
 
             if comando.lower() not in lista_comandos:
                 print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
@@ -66,7 +66,7 @@ def executar(select=None, color=None, writer_func=None):
             elif comando.lower() == 'menu':
                 menu.menu_veiculos()
 
-            elif comando.lower() == 'info_veiculo':
+            elif comando.lower() == 'veiculos':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
@@ -117,7 +117,7 @@ def executar(select=None, color=None, writer_func=None):
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
-                        print('\n' + tabulate([('id_cliente', 'Filtrar OS solicitadas por clientes usando o número de registro'),
+                        print('\n' + tabulate([('registro', 'Filtrar OS solicitadas por clientes usando o número de registro'),
                                                 ('cpf', 'Filtrar OS solicitadas por clientes usando o CPF'),
                                                 ('modelo', 'Filtrar pelo modelo do veículo'),
                                                 ('marca', 'Filtrar pela marca do veículo'),
@@ -130,12 +130,12 @@ def executar(select=None, color=None, writer_func=None):
                         opcao_filtro = str(input(f'{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END} ')).strip().lower()
                         if opcao_filtro == 'back':
                             break
-                        lista_filtros_os = ['cpf', 'id_cliente', 'modelo', 'marca', 'inicio', 'conclusao', 'tempo_reparo']
+                        lista_filtros_os = ['cpf', 'registro', 'modelo', 'marca', 'inicio', 'conclusao', 'tempo_reparo']
 
                         if opcao_filtro not in lista_filtros_os and opcao_filtro != 'combinado':
                             print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
 
-                        if opcao_filtro.lower() == 'id_cliente':
+                        if opcao_filtro.lower() == 'registro':
                             registro = input('\nDigite o registro do cliente (ID) > ')
                             nome_cliente = obter_nome_cliente(select, registro, color)
                             if nome_cliente is None:

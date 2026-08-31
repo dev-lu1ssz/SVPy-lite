@@ -62,41 +62,41 @@ def executar(select=None, color=None, writer_func=None):
             elif comando.lower() == 'menu':
                 menu.menu_funcionarios()
 
-            lista_comandos_funcionarios = ['info_funcionarios', 'func_especialidades', 'folha_pagamento', 'menu', 'back']
+            lista_comandos_funcionarios = ['funcionarios', 'especialidades', 'pagamentos', 'menu', 'back']
             if comando.lower() not in lista_comandos_funcionarios:
                 print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
 
-            if comando.lower() == 'info_funcionarios':
+            if comando.lower() == 'funcionarios':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
 
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     op_func = select.consulta_funcionarios()
                     while True:
-                        print('\n' + tabulate([('funcionarios_ativos', 'Mostra os funcionarios ainda ativos na empresa'),
-                                                ('funcionarios_desligados', 'Mostra os funcionários que foram demitidos da empresa'),
-                                                ('id_funcionario', 'Procurar por um funcionário específico usando o número de registro (ID)'),
+                        print('\n' + tabulate([('ativos', 'Mostra os funcionarios ainda ativos na empresa'),
+                                                ('desligados', 'Mostra os funcionários que foram demitidos da empresa'),
+                                                ('registro', 'Procurar por um funcionário específico usando o número de registro (ID)'),
                                                 ('back', 'Volta para o menu de comandos')],
                                                headers=['Filtro', 'Descrição'], tablefmt='grid', stralign='left'))
 
                         quest_filtro = str(input(f'\n{color.NEGATIVE}Escolha o filtro que deseja utilizar >{color.END}: ')).strip().lower()
                         if quest_filtro == 'back':
                             break
-                        lista_filtro = ['funcionarios_ativos', 'funcionarios_desligados', 'id_funcionario', 'todos']
+                        lista_filtro = ['ativos', 'desligados', 'registro', 'back']
 
                         if quest_filtro not in lista_filtro:
                             print(f'\n{color.LIGHT_RED}O filtro selecionado é inválido! Veja novamente a lista e escolha o filtro que deseja utilizar{color.END}')
 
-                        if quest_filtro == 'funcionarios_ativos':
+                        if quest_filtro == 'ativos':
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários ainda ativos na empresa..........{color.END}\n\n')
                             op_func.ativos()
                             break
 
-                        elif quest_filtro == 'funcionarios_desligados':
+                        elif quest_filtro == 'desligados':
                             writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários que foram desligados da empresa..........{color.END}\n\n')
                             op_func.demitidos()
                             break
 
-                        elif quest_filtro == 'id_funcionario':
+                        elif quest_filtro == 'registro':
                             id_funcionario = input('\nDigite o número de registro do funcionário (ID) > ')
                             nome_funcioario = obter_nome_funcionario(select, id_funcionario, color)
                             if nome_funcioario is None:
@@ -110,12 +110,12 @@ def executar(select=None, color=None, writer_func=None):
                     funcionarios = select.consulta_funcionarios()
                     funcionarios.all()
 
-            elif comando.lower() == 'func_especialidades':
+            elif comando.lower() == 'especialidades':
                 writer_func(f'\n{color.LIGHT_GREEN}Consulta: Funcionários e suas especialidades..........{color.END}\n\n')
                 dados = select.funcionario_dep_esp()
                 print(tabulate(dados, headers=['FUNCIONÁRIO', 'DATA ADMISSÃO', 'DEPARTAMENTO', 'ESPECIALIDADE'], tablefmt='grid', stralign='left'))
 
-            elif comando.lower() == 'folha_pagamento':
+            elif comando.lower() == 'pagamentos':
                 writer_func(f'\n{color.LIGHT_GREEN}Consulta: Folha de pagamento dos funcionários..........{color.END}\n\n')
                 dados = select.dados_fp()
                 print(tabulate(dados, headers=['FUNCIONÁRIO', 'DATA ADMISSÃO', 'MÊS', 'SALÁRIO BRUTO', 'DESCONTOS', 'SALÁRIO LÍQUIDO', 'STATUS', 'SITUAÇÃO'], tablefmt='grid', stralign='left'))

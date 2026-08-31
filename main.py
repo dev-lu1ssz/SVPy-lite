@@ -89,4 +89,11 @@ try:
             print(f'{color.RED}O valor digitado é inválido!{color.END}')
 
 except KeyboardInterrupt:
+    print(f'\n{color.LIGHT_GREEN}Saindo do sistema SV-Py Lite...{color.END}\n')
+    conexao.close()
+    exit()
+
+except EOFError:
+    print(f'\n{color.LIGHT_GREEN}Saindo do sistema SV-Py Lite...{color.END}\n')
+    conexao.close()
     exit()

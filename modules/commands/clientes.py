@@ -55,7 +55,7 @@ def executar(select=None, color=None, writer_func=None):
         while True:
             print('\nSelecione uma das opções - Digite "back" para voltar ao menu de categorias')
             comando = str(input(f'{color.NEGATIVE}SVPy-lite/commands >{color.END} '))
-            lista_comandos = ['info_cliente', 'cliente_ult_os', 'info_pagamento', 'cliente_agenciamento', 'atendimento', 'qtde_veiculos', 'back', 'menu']
+            lista_comandos = ['clientes', 'ultimo_os', 'pagamentos', 'agenciamentos', 'atendimentos', 'veiculos', 'back', 'menu']
 
             if comando.lower() not in lista_comandos:
                 print(f'\n{color.RED}Opção inválida! Digite "menu" para ver a lista de comandos disponíveis.{color.END}')
@@ -66,7 +66,7 @@ def executar(select=None, color=None, writer_func=None):
             elif comando.lower() == 'menu':
                 menu.menu_clientes()
 
-            elif comando.lower() == 'info_cliente':
+            elif comando.lower() == 'clientes':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
@@ -81,7 +81,7 @@ def executar(select=None, color=None, writer_func=None):
                     writer_func(f'\n{color.LIGHT_GREEN}Consulta: Cadastro de todos os clientes............{color.END}\n\n')
                     select.client_info()
 
-            elif comando.lower() == 'cliente_ult_os':
+            elif comando.lower() == 'ultimo_os':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     while True:
@@ -123,7 +123,7 @@ def executar(select=None, color=None, writer_func=None):
                     writer_func('\nConsulta o banco de dados............\n\n')
                     select.cliente_ult_os()
 
-            elif comando.lower() == 'info_pagamento':
+            elif comando.lower() == 'pagamentos':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     while True:
@@ -168,7 +168,7 @@ def executar(select=None, color=None, writer_func=None):
                     writer_func('\nConsultando o banco de dados............\n\n')
                     select.info_pagamento()
 
-            elif comando.lower() == 'cliente_agenciamento':
+            elif comando.lower() == 'agenciamentos':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 'ss', 's', 'yes', 'si'):
                     while True:
@@ -210,7 +210,7 @@ def executar(select=None, color=None, writer_func=None):
                     writer_func('\nConsulta: Todos os agenciamentos que foram solicitados............\n\n')
                     select.status_agenciamento()
 
-            elif comando.lower() == 'atendimento':
+            elif comando.lower() == 'atendimentos':
                 quest_filtro = str(input('Deseja realizar uma consulta com filtro ? [S/N]: '))
                 if quest_filtro.lower() in ('sim', 's', 'ss', 'yes', 'si'):
                     while True:
@@ -254,7 +254,7 @@ def executar(select=None, color=None, writer_func=None):
                     writer_func(f'{color.LIGHT_GREEN}\nConsulta: Todos os atendimentos realizados............\n\n{color.END}')
                     select.atendimento_ao_cliente()
 
-            elif comando.lower() == 'qtde_veiculos':
+            elif comando.lower() == 'veiculos':
                 writer_func(f'{color.LIGHT_GREEN}\nConsultando o banco de dados..........{color.END}\n\n')
                 select.qtde_veiculo_cliente()
     finally:
