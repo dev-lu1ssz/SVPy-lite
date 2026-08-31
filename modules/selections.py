@@ -7,52 +7,6 @@ class Selectdata:
         self.conexao = conexao
         self.cursor = conexao.cursor()
     
-    def all_tables(self):
-        self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table";')
-        return self.cursor.fetchall()
-    
-    def columns(self, nome):
-        nome = str(nome).strip()
-        nome = nome.replace('"', '""')
-        self.cursor.execute(f'PRAGMA table_info("{nome}");')
-        colunas = self.cursor.fetchall()
-        nome_colunas = [coluna[1] for coluna in colunas]
-        return nome_colunas
-    
-    def consulta_tabela(self, nome_tabela):
-        nome_tabela = str(nome_tabela).strip()
-
-        tabelas_permitidas = {
-            "CLIENTE",
-            "ENDERECO",
-            "CATEGORIA_PRODUTO",
-            "VEICULO",
-            "FORNECEDOR",
-            "PRODUTO",
-            "FUNCIONARIO",
-            "ORDEM_SERVICO",
-            "PAGAMENTO",
-            "PAGAMENTO_ITEM",
-            "FEEDBACK",
-            "DEPARTAMENTO",
-            "ESPECIALIDADE",
-            "ESTOQUE",
-            "ATENDIMENTO",
-            "AGENCIAMENTO_VEICULO",
-            "FOLHA_PAGAMENTO",
-            "CONTA_RECEBER",
-            "CONTA_PAGAR"
-        }
-
-        if nome_tabela.upper() not in tabelas_permitidas:
-            raise ValueError(f"Tabela inválida: {nome_tabela}")
-
-        query_sql = f'SELECT * FROM "{nome_tabela.upper()}";'
-        self.cursor.execute(query_sql)
-        colunas = [descricao[0] for descricao in self.cursor.description]
-        dados = self.cursor.fetchall()
-        return colunas, dados
-    
     def nome_cliente(self, id_cliente): # Mostra o nome do cliente usando o ID como filtro
         query_sql = '''
             SELECT NOME_CLIENTE FROM CLIENTE WHERE ID_CLIENTE = ?
@@ -170,7 +124,10 @@ class Selectdata:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
     def consulta_produto(self, categoria=None):
-        query_sql = 'SELECT PRODUTO.ID_PRODUTO, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL FROM PRODUTO INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA '
+        query_sql = '''SELECT PRODUTO.ID_PRODUTO, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, PRODUTO.QUANTIDADE, 
+        PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL 
+        FROM PRODUTO 
+        INNER JOIN CATEGORIA_PRODUTO ON CATEGORIA_PRODUTO.ID_CATEGORIA = PRODUTO.ID_CATEGORIA '''
         params = []
         
         if categoria is not None:

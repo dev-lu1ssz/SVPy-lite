@@ -2,10 +2,6 @@ import os
 import sqlite3
 
 schema_sql = '''
-            CREATE TABLE IF NOT EXISTS SCHEMA_VERSION(
-                VERSION INTEGER PRIMARY KEY NOT NULL
-            );
-
             CREATE TABLE IF NOT EXISTS DEPARTAMENTO(
                 ID_DEPARTAMENTO INTEGER PRIMARY KEY NOT NULL,
                 NOME_DEPARTAMENTO VARCHAR(25) NOT NULL UNIQUE,
