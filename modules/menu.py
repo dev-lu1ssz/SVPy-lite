@@ -48,6 +48,8 @@ def categorias():
     return print(f'\n{tabela}\n')
 
 def financas():
-    lista_categorias = [('metodos', 'Consulta a quantidade de métodos de pagamento que foram utilizadas durante todo o período.')]
+    lista_categorias = [('metodos', 'Consulta a quantidade de métodos de pagamento que foram utilizadas durante todo o período.'),
+                        ('pagamento_os', 'Consulta os pagamentos relacionados às ordens de serviço.'),
+                        ('back', 'Volta para o menu de categorias')]
     tabela = tabulate(lista_categorias, headers=['Categoria', 'Descrição'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')
