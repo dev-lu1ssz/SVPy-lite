@@ -3,32 +3,32 @@ from tabulate import tabulate
 from modules.colors import Colors
 colors = Colors()
 class Selectdata:
-    def __init__(self, conexao):
+    def __init__(self, conexao):  # Inicializa a conexão e o cursor usados nas consultas.
         self.conexao = conexao
         self.cursor = conexao.cursor()
 
-    def _mostrar_tabela(self, registros, headers, mensagem_erro='Erro! Dados não foram encontrados'):
+    def _mostrar_tabela(self, registros, headers, mensagem_erro='Erro! Dados não foram encontrados'):  # Exibe registros formatados e retorna os dados ou uma lista vazia.
         if registros:
             print(tabulate(registros, headers=headers, tablefmt='grid', stralign='left'))
             return registros
         print(f'{colors.RED}{mensagem_erro}{colors.END}')
         return []
     
-    def nome_cliente(self, id_cliente): # Mostra o nome do cliente usando o ID como filtro
+    def nome_cliente(self, id_cliente):  # Busca e retorna o nome do cliente pelo ID.
         query_sql = '''
             SELECT NOME_CLIENTE FROM CLIENTE WHERE ID_CLIENTE = ?
         '''
         self.cursor.execute(query_sql, (id_cliente,))
         return self.cursor.fetchone()
     
-    def funcionarios(self, id_funcionario): # Mostra o nome do funcionário usando o ID como filtro
+    def funcionarios(self, id_funcionario):  # Busca e retorna o nome do funcionário pelo ID.
         query_sql = '''
             SELECT NOME_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = ?
         '''
         self.cursor.execute(query_sql, (id_funcionario,))
         return self.cursor.fetchone()
     
-    def client_info(self, id_cliente=None, cpf=None, logradouro=None, cidade=None, uf=None, cep=None):
+    def client_info(self, id_cliente=None, cpf=None, logradouro=None, cidade=None, uf=None, cep=None):  # Consulta dados pessoais e endereço de clientes com filtros opcionais e imprime a tabela.
         query_sql = '''
                  SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE,
                      ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP
@@ -72,7 +72,7 @@ class Selectdata:
         else:
             return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False):
+    def cliente_ult_os(self, id_cliente=None, apenas_ultimo=False):  # Exibe as ordens de serviço do cliente, podendo limitar à mais recente.
         params = []
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, VEICULO.MARCA, ORDEM_SERVICO.DESC_REPARO
@@ -101,7 +101,7 @@ class Selectdata:
                 return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
             return print(tabulate(registros, headers=['CLIENTE', 'MARCA DO VEÍCULO', 'DESCRIÇÃO DO REPARO'], tablefmt='grid', stralign='left'))
     
-    def info_pagamento(self, id_cliente=None, cpf=None, metodo_pagamento=None, sitaucao=None):
+    def info_pagamento(self, id_cliente=None, cpf=None, metodo_pagamento=None, sitaucao=None):  # Exibe valores, métodos e status de pagamentos filtrados por cliente ou situação.
         params = []
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PAGAMENTO.VALOR_TOTAL,
@@ -136,7 +136,7 @@ class Selectdata:
             return print(tabulate(registros, headers=['CLIENTE', 'CPF', 'VALOR (R$)', 'MÉTODO DE PAGAMENTO', 'STATUS'], tablefmt='grid', stralign='left'))
         return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
-    def consulta_carro(self, placa=None, modelo=None, marca=None):
+    def consulta_carro(self, placa=None, modelo=None, marca=None):  # Consulta veículos por placa, modelo ou marca e imprime seus dados.
         query_sql = 'SELECT ID_VEICULO, PLACA, MODELO, MARCA, CHASSIS FROM VEICULO'
         params = []
         conditions = []
@@ -164,7 +164,7 @@ class Selectdata:
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def consulta_produto(self, categoria=None, nome_produto=None, preco_unitario=None, id_produto=None):
+    def consulta_produto(self, categoria=None, nome_produto=None, preco_unitario=None, id_produto=None):  # Consulta produtos, categoria, quantidade e preços usando filtros opcionais.
         query_sql = '''SELECT PRODUTO.ID_PRODUTO, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, PRODUTO.QUANTIDADE,
         PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
         FROM PRODUTO
@@ -197,7 +197,7 @@ class Selectdata:
             return print(tabulate(registros, headers=['ID', 'PRODUTO', 'CATEGORIA', 'QTDE', 'PREÇO UNITÁRIO', 'PREÇO TOTAL'], tablefmt='grid', stralign='left'))
         return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def consulta_fornecedor(self, nome=None, cnpj=None):
+    def consulta_fornecedor(self, nome=None, cnpj=None):  # Busca fornecedores por nome ou CNPJ e retorna os registros encontrados.
         query_sql = 'SELECT * FROM FORNECEDOR '
         params = []
         conditions = []
@@ -216,7 +216,7 @@ class Selectdata:
         self.cursor.execute(query_sql, tuple(params))
         return self.cursor.fetchall()
     
-    def consulta_funcionarios(self, id_funcionario=None, nome_funcionario=None, cidade=None, uf=None, cep=None, logradouro=None, data_admissao=None, data_demissao=None, nome_departamento=None, nome_especialidade=None):
+    def consulta_funcionarios(self, id_funcionario=None, nome_funcionario=None, cidade=None, uf=None, cep=None, logradouro=None, data_admissao=None, data_demissao=None, nome_departamento=None, nome_especialidade=None):  # Cria uma consulta reutilizável de funcionários com filtros pessoais, profissionais e de endereço.
         base_query = (
             'SELECT FUNCIONARIO.ID_FUNCIONARIO, FUNCIONARIO.NOME_FUNCIONARIO, DEPARTAMENTO.NOME_DEPARTAMENTO, ESPECIALIDADE.NOME_ESPECIALIDADE, '
             'FUNCIONARIO.DATA_ADMISSAO, FUNCIONARIO.DATA_DEMISSAO, ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP '
@@ -269,13 +269,13 @@ class Selectdata:
             params.append(f'%{nome_especialidade}%')
 
         class FuncQuery:
-            def __init__(self, cursor, base_query, conditions, params):
+            def __init__(self, cursor, base_query, conditions, params):  # Guarda a consulta-base e os filtros iniciais da busca de funcionários.
                 self.cursor = cursor
                 self.base_query = base_query
                 self.base_conditions = list(conditions)
                 self.base_params = list(params)
 
-            def _build_and_exec(self, extra_condition=None, extra_params=None, single=False):
+            def _build_and_exec(self, extra_condition=None, extra_params=None, single=False):  # Monta a consulta final, aplica filtros extras e retorna um ou vários registros.
                 q = self.base_query
                 conds = list(self.base_conditions)
                 params = list(self.base_params)
@@ -297,25 +297,25 @@ class Selectdata:
 
             headers = ['ID', 'NOME', 'DEPARTAMENTO', 'ESPECIALIDADE', 'DATA ADMISSÃO', 'DATA DEMISSÃO', 'LOGRADOURO', 'NÚMERO', 'CIDADE', 'UF', 'CEP']
 
-            def all(self):
+            def all(self):  # Exibe todos os funcionários que atendem aos filtros informados.
                 registros = self._build_and_exec()
                 if registros:
                     return print(tabulate(registros, headers=self.headers, tablefmt='grid', stralign='left'))
                 return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
-            def ativos(self):
+            def ativos(self):  # Exibe somente funcionários sem data de demissão.
                 registros = self._build_and_exec('DATA_DEMISSAO IS NULL')
                 if registros:
                     return print(tabulate(registros, headers=self.headers, tablefmt='grid', stralign='left'))
                 return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
-            def demitidos(self):
+            def demitidos(self):  # Exibe somente funcionários com data de demissão.
                 registros = self._build_and_exec('DATA_DEMISSAO IS NOT NULL')
                 if registros:
                     return print(tabulate(registros, headers=self.headers, tablefmt='grid', stralign='left'))
                 return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
-            def by_id(self, idv):
+            def by_id(self, idv):  # Exibe um funcionário específico pelo ID.
                 registro = self._build_and_exec('FUNCIONARIO.ID_FUNCIONARIO = ?', [idv], single=True)
                 if registro:
                     return print(tabulate([registro], headers=self.headers, tablefmt='grid', stralign='left'))
@@ -323,7 +323,7 @@ class Selectdata:
 
         return FuncQuery(self.cursor, base_query, conditions, params)
     
-    def consulta_estoque_min(self, nome_produto=None, abaixo=False, acima=False, no_limite=False):
+    def consulta_estoque_min(self, nome_produto=None, abaixo=False, acima=False, no_limite=False):  # Exibe estoque atual, estoque mínimo e a situação de cada produto.
         query_sql = '''
             SELECT PRODUTO.NOME_PRODUTO, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.QTDE_MIN,
                 CASE
@@ -365,7 +365,7 @@ class Selectdata:
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def consulta_salario_bruto(self, salario):
+    def consulta_salario_bruto(self, salario):  # Retorna funcionários cuja folha possui salário bruto acima do valor informado.
         query_sql = '''
             SELECT FUNCIONARIO.NOME_FUNCIONARIO, FOLHA_PAGAMENTO.SALARIO_BRUTO, FUNCIONARIO.DATA_ADMISSAO, FUNCIONARIO.DATA_DEMISSAO
             FROM FUNCIONARIO
@@ -375,7 +375,7 @@ class Selectdata:
         self.cursor.execute(query_sql, (salario,))
         return self.cursor.fetchall()
 
-    def status_agenciamento(self, status=None, id_cliente=None, nome_cliente=None, modelo_veiculo=None):
+    def status_agenciamento(self, status=None, id_cliente=None, nome_cliente=None, modelo_veiculo=None):  # Exibe agenciamentos de veículos filtrados por cliente, modelo ou status.
         query_sql = f'''
             SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, VEICULO.MODELO, AGENCIAMENTO_VEICULO.DATA_INICIO_AGENCIAMENTO, AGENCIAMENTO_VEICULO.STATUS
             FROM AGENCIAMENTO_VEICULO
@@ -409,7 +409,7 @@ class Selectdata:
             return print(tabulate(saida, headers=['ID', 'CLIENTE', 'MODELO DO VEÍCULO', 'DATA DE AGEN.', 'STATUS AGEN.'], tablefmt='grid', stralign='left'))
         return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def clientes_e_veiculos(self, id_cliente=None, nome_cliente=None):
+    def clientes_e_veiculos(self, id_cliente=None, nome_cliente=None):  # Exibe clientes, contatos e os veículos associados a eles.
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE, VEICULO.MODELO, VEICULO.MARCA
             FROM CLIENTE
@@ -436,7 +436,7 @@ class Selectdata:
             return print(tabulate(saida, headers=['CLIENTE', 'CPF', 'TELEFONE', 'MODELO DO VEICULO', 'MARCA DO VEICULO'], tablefmt='grid', stralign='left'))
         return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
-    def produtos_e_fornecedores(self, nome_produto=None, id_produto=None):
+    def produtos_e_fornecedores(self, nome_produto=None, id_produto=None):  # Exibe produtos, categorias, fornecedores, quantidades e valores.
         query_sql = '''
             SELECT PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ, PRODUTO.QUANTIDADE, PRODUTO.PRECO_UNITARIO, PRODUTO.PRECO_TOTAL
             FROM FORNECEDOR
@@ -465,7 +465,7 @@ class Selectdata:
         else:
             print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')  
     
-    def funcionario_dep_esp(self):
+    def funcionario_dep_esp(self):  # Retorna funcionários com suas datas de admissão, departamentos e especialidades.
         query = '''
             SELECT FUNCIONARIO.NOME_FUNCIONARIO, FUNCIONARIO.DATA_ADMISSAO, DEPARTAMENTO.NOME_DEPARTAMENTO, ESPECIALIDADE.NOME_ESPECIALIDADE
             FROM FUNCIONARIO
@@ -475,7 +475,7 @@ class Selectdata:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
-    def os_cliente_veiculo(self, id_cliente=None, cpf_cliente=None, modelo=None, marca=None, data_inicio=None, data_conclusao=None, tempo_reparo=None):
+    def os_cliente_veiculo(self, id_cliente=None, cpf_cliente=None, modelo=None, marca=None, data_inicio=None, data_conclusao=None, tempo_reparo=None):  # Exibe ordens de serviço relacionadas a clientes e veículos, com filtros diversos.
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, VEICULO.MODELO, VEICULO.MARCA, ORDEM_SERVICO.DATA_INICIO, ORDEM_SERVICO.DATA_CONCLUSAO, ORDEM_SERVICO.TEMPO_TOTAL_REPARO, ORDEM_SERVICO.VALOR_TOTAL
             FROM ORDEM_SERVICO
@@ -526,7 +526,7 @@ class Selectdata:
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
-    def pagamento_os(self, id_cliente=None, cpf_cliente=None, data_inicio=None,
+    def pagamento_os(self, id_cliente=None, cpf_cliente=None, data_inicio=None,  # Exibe pagamentos vinculados a ordens de serviço e seus detalhes.
                      descricao=None, metodo_pagamento=None, status_pagamento=None,
                      data_pagamento=None):
         query_sql = '''
@@ -590,7 +590,7 @@ class Selectdata:
             ))
         return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def pagamento_produto(self):
+    def pagamento_produto(self):  # Retorna pagamentos de produtos com cliente, fornecedor, quantidade, valor e status.
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, FORNECEDOR.CNPJ,
             PAGAMENTO.DATA_PAGAMENTO, PRODUTO.PRECO_UNITARIO, PAGAMENTO_ITEM.QUANTIDADE, PAGAMENTO_ITEM.VALOR_ITEM, PAGAMENTO.STATUS_PAGAMENTO, PAGAMENTO.METODO_PAGAMENTO
@@ -605,7 +605,7 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
     
-    def atendimento_ao_cliente(self, id_funcionario=None, id_cliente=None):
+    def atendimento_ao_cliente(self, id_funcionario=None, id_cliente=None):  # Exibe atendimentos relacionando cliente, funcionário e data.
         query_sql = '''
             SELECT CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, ATENDIMENTO.DATA_ATENDIMENTO, 
             FUNCIONARIO.NOME_FUNCIONARIO
@@ -635,7 +635,7 @@ class Selectdata:
         else:
             return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def produtos_estoque(self):
+    def produtos_estoque(self):  # Retorna produtos em estoque com categoria, fornecedor, quantidade e validade.
         query_sql = '''
             SELECT PRODUTO.NOME_PRODUTO, CATEGORIA_PRODUTO.NOME_CATEGORIA, FORNECEDOR.NOME_FORNECEDOR, ESTOQUE.QTDE_ESTOQUE, ESTOQUE.VALIDADE_DIAS
             FROM ESTOQUE
@@ -646,7 +646,7 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
     
-    def dados_fp(self):
+    def dados_fp(self):  # Retorna dados da folha de pagamento e informa se o funcionário está ativo ou desligado.
         query_sql = '''
             SELECT FUNCIONARIO.NOME_FUNCIONARIO, FUNCIONARIO.DATA_ADMISSAO, 
             FOLHA_PAGAMENTO.MES_REFERENCIA, FOLHA_PAGAMENTO.SALARIO_BRUTO, FOLHA_PAGAMENTO.DESCONTOS, 
@@ -661,7 +661,7 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
     
-    def cr_pagamento(self):
+    def cr_pagamento(self):  # Retorna contas a receber, parcelas, vencimentos, valores e status dos pagamentos.
         query_sql = '''
             SELECT PAGAMENTO.DATA_PAGAMENTO, PAGAMENTO.VALOR_TOTAL, PAGAMENTO.PARCELAS, PAGAMENTO.REFERENCIA,
             CONTA_RECEBER.NUMERO_PARCELA, CONTA_RECEBER.VALOR_PARCELA, CONTA_RECEBER.DATA_VENCIMENTO_RECEBER,
@@ -672,7 +672,7 @@ class Selectdata:
         self.cursor.execute(query_sql)
         return self.cursor.fetchall()
         
-    def qtde_veiculo_cliente(self, nome_cliente=None, cpf_cliente=None, id_cliente=None, qtde_veiculos=None):
+    def qtde_veiculo_cliente(self, nome_cliente=None, cpf_cliente=None, id_cliente=None, qtde_veiculos=None):  # Exibe a quantidade de veículos de cada cliente, com filtros e ordenação decrescente.
         query_sql = '''
             SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
             COUNT(VEICULO.ID_VEICULO) AS QTDE_VEICULOS
@@ -712,7 +712,7 @@ class Selectdata:
             return print(tabulate(saida, headers=['REGISTRO', 'CLIENTE', 'CPF', 'QTDE VEICULOS'], tablefmt='grid', stralign='left'))
         return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
 
-    def os_pcliente(self, nome_cliente=None, cpf_cliente=None, id_cliente=None, qtde_os=None):
+    def os_pcliente(self, nome_cliente=None, cpf_cliente=None, id_cliente=None, qtde_os=None):  # Exibe a quantidade de ordens de serviço por cliente, com filtros opcionais.
         query_sql = '''
             SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE,
             COUNT(ORDEM_SERVICO.ID_OS) AS QTDE_OS
@@ -751,7 +751,7 @@ class Selectdata:
             return print(tabulate(saida, headers=['REGISTRO', 'CLIENTE', 'CPF', 'QTDE ORDENS DE SERVIÇO'], tablefmt='grid', stralign='left'))
         return print(f'{colors.LIGHT_RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def total_pagamentos_metodo(self, metodo):
+    def total_pagamentos_metodo(self, metodo):  # Conta e exibe quantos pagamentos foram feitos pelo método informado.
         query_sql = '''
             SELECT PAGAMENTO.METODO_PAGAMENTO,
             COUNT (*) AS TOTAL_PAGAMENTOS
@@ -771,7 +771,7 @@ class Selectdata:
             ))
         return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
-    def total_produtos_categoria(self, categoria):
+    def total_produtos_categoria(self, categoria):  # Retorna a quantidade e a soma dos preços dos produtos de uma categoria.
         query_sql = f'''
             SELECT CATEGORIA_PRODUTO.NOME_CATEGORIA,
             COUNT (*) AS TOTAL_PRODUTOS,
