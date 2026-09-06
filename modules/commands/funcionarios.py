@@ -220,18 +220,15 @@ def executar(select=None, color=None, writer_func=None):
 
                 elif quest_filtro.lower() in ('nao', 'não', 'n', 'nn'):
                     writer_func(f'\n{color.LIGHT_GREEN}Consulta: Todos os funcionários registrados no sistema..........{color.END}\n\n')
-                    funcionarios = select.consulta_funcionarios()
-                    funcionarios.all()
+                    select.consulta_funcionarios().all()
 
             elif comando.lower() == 'especialidades':
                 writer_func(f'\n{color.LIGHT_GREEN}Consulta: Funcionários e suas especialidades..........{color.END}\n\n')
-                dados = select.funcionario_dep_esp()
-                print(tabulate(dados, headers=['FUNCIONÁRIO', 'DATA ADMISSÃO', 'DEPARTAMENTO', 'ESPECIALIDADE'], tablefmt='grid', stralign='left'))
+                select.funcionario_dep_esp()
 
             elif comando.lower() == 'pagamentos':
                 writer_func(f'\n{color.LIGHT_GREEN}Consulta: Folha de pagamento dos funcionários..........{color.END}\n\n')
-                dados = select.dados_fp()
-                print(tabulate(dados, headers=['FUNCIONÁRIO', 'DATA ADMISSÃO', 'MÊS', 'SALÁRIO BRUTO', 'DESCONTOS', 'SALÁRIO LÍQUIDO', 'STATUS', 'SITUAÇÃO'], tablefmt='grid', stralign='left'))
+                select.dados_fp()
     finally:
         if conexao is not None:
             conexao.close()

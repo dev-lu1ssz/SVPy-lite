@@ -132,23 +132,19 @@ def executar(select=None, color=None, writer_func=None):
 
             elif comando.lower() == 'compras':
                 writer_func(f'\n{color.LIGHT_GREEN}Consulta: Produtos disponíveis no estoque..........{color.END}\n\n')
-                dados = select.produtos_estoque()
-                print(tabulate(dados, headers=['PRODUTO', 'CATEGORIA', 'FORNECEDOR', 'QTDE EM ESTOQUE', 'VALIDADE (DIAS)'], tablefmt='grid', stralign='left'))
+                select.produtos_estoque()
 
             elif comando.lower() == 'categoria':
                 categoria = input('Digite a categoria do produto > ').strip()
-                dados = select.total_produtos_categoria(categoria)
-                print(tabulate(dados, headers=['CATEGORIA', 'TOTAL DE PRODUTOS', 'PREÇO TOTAL'], tablefmt='grid', stralign='left'))
+                select.total_produtos_categoria(categoria)
 
             elif comando.lower() == 'fornecedor':
                 nome = input('Digite o nome do fornecedor (ou Enter para ignorar) > ').strip() or None
                 cnpj = input('Digite o CNPJ (ou Enter para ignorar) > ').strip() or None
-                dados = select.consulta_fornecedor(nome=nome, cnpj=cnpj)
-                print(tabulate(dados, headers=['ID', 'NOME', 'CNPJ', 'TELEFONE', 'ID ENDEREÇO'], tablefmt='grid', stralign='left'))
+                select.consulta_fornecedor(nome=nome, cnpj=cnpj)
 
             elif comando.lower() == 'compra_produto':
-                dados = select.pagamento_produto()
-                print(tabulate(dados, headers=['CLIENTE', 'CPF', 'PRODUTO', 'CATEGORIA', 'FORNECEDOR', 'CNPJ', 'DATA', 'PREÇO UNITÁRIO', 'QUANTIDADE', 'VALOR TOTAL', 'STATUS', 'MÉTODO'], tablefmt='grid', stralign='left'))
+                select.pagamento_produto()
     finally:
         if conexao is not None:
             conexao.close()
