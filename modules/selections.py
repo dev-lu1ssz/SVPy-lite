@@ -28,7 +28,7 @@ class Selectdata:
         self.cursor.execute(query_sql, (id_funcionario,))
         return self.cursor.fetchone()
     
-    def client_info(self, id_cliente=None, cpf=None, logradouro=None, numero=None, cidade=None, uf=None, cep=None):
+    def client_info(self, id_cliente=None, cpf=None, logradouro=None, cidade=None, uf=None, cep=None):
         query_sql = '''
                  SELECT CLIENTE.ID_CLIENTE, CLIENTE.NOME_CLIENTE, CLIENTE.CPF_CLIENTE, CLIENTE.TELEFONE,
                      ENDERECO.LOGRADOURO, ENDERECO.NUMERO, ENDERECO.CIDADE, ENDERECO.UF, ENDERECO.CEP
@@ -322,27 +322,6 @@ class Selectdata:
                 return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
 
         return FuncQuery(self.cursor, base_query, conditions, params)
-    
-    def metodos_pagamento(self, nome_metodo=None):
-        metodos_permitidos = {
-            'PIX',
-            'CARTÃO DE CRÉDITO',
-            'CARTÃO DE DÉBITO',
-            'BOLETO',
-            'CARTÃO'
-        }
-        params = []
-        query_sql = 'SELECT * FROM PAGAMENTO'
-
-        if nome_metodo not in metodos_permitidos and nome_metodo is not None:
-            raise ValueError(f'Valor inválido: {nome_metodo}')
-                
-        if nome_metodo:
-            query_sql += ' WHERE METODO_PAGAMENTO = ?'
-            params.append(nome_metodo)
-
-        self.cursor.execute(query_sql, tuple(params))
-        return self.cursor.fetchall()
     
     def consulta_estoque_min(self, nome_produto=None, abaixo=False, acima=False, no_limite=False):
         query_sql = '''
@@ -723,15 +702,22 @@ class Selectdata:
     def total_pagamentos_metodo(self, metodo):
         query_sql = '''
             SELECT PAGAMENTO.METODO_PAGAMENTO,
-            COUNT (*) AS TOTAL_PAGAMENTOS,
-            SUM (VALOR_TOTAL) AS VALOR_TOTAL_AGRUPADO
+            COUNT (*) AS TOTAL_PAGAMENTOS
             FROM PAGAMENTO
             WHERE METODO_PAGAMENTO = ?
             GROUP BY METODO_PAGAMENTO
-            ORDER BY VALOR_TOTAL_AGRUPADO DESC;
+            ORDER BY TOTAL_PAGAMENTOS DESC;
         '''
         self.cursor.execute(query_sql, (metodo,))
-        return self.cursor.fetchall()
+        registros = self.cursor.fetchall()
+        if registros:
+            return print(tabulate(
+                registros,
+                headers=['MÉTODO DE PAGAMENTO', 'TOTAL DE PAGAMENTOS'],
+                tablefmt='grid',
+                stralign='center'
+            ))
+        return print(f'{colors.RED}Erro! Dados não foram encontrados{colors.END}')
     
     def total_produtos_categoria(self, categoria):
         query_sql = f'''

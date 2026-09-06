@@ -42,6 +42,12 @@ def categorias():
     lista_categorias = [('clientes', 'Consultas para trazer as principais informações sobre os cliente'),
                                 ('veiculos', 'Consultas para trazer as principais informações sobre os veículos dos clientes'),
                                 ('funcionarios', 'Consultas para trazer as principais informações sobre os funcionários da empresa'),
-                                ('produtos', 'Consultas para trazer as principais informações sobre os produtos')]
+                                ('produtos', 'Consultas para trazer as principais informações sobre os produtos'),
+                                ('financas', 'Consultas para trazer as principais informações sobre finanças no sistema')]
+    tabela = tabulate(lista_categorias, headers=['Categoria', 'Descrição'], tablefmt='grid', stralign='left')
+    return print(f'\n{tabela}\n')
+
+def financas():
+    lista_categorias = [('metodos', 'Consulta a quantidade de métodos de pagamento que foram utilizadas durante todo o período.')]
     tabela = tabulate(lista_categorias, headers=['Categoria', 'Descrição'], tablefmt='grid', stralign='left')
     return print(f'\n{tabela}\n')

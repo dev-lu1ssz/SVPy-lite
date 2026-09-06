@@ -1,7 +1,7 @@
 import modules.database_creator as database_creator
 from modules.selections import Selectdata
 import modules.menu as menu
-from modules.commands import clientes, veiculos, funcionarios, produtos
+from modules.commands import clientes, veiculos, funcionarios, produtos, financas
 import os
 import sqlite3
 import time
@@ -63,7 +63,7 @@ try:
                     menu.categorias()
 
                     categoria = str(input(f'{color.NEGATIVE}SVPy-lite >{color.END} ')).strip().lower()
-                    categorias_disponiveis = ['clientes', 'veiculos', 'funcionarios', 'produtos']
+                    categorias_disponiveis = ['clientes', 'veiculos', 'funcionarios', 'produtos', 'financas']
 
                     if categoria not in categorias_disponiveis:
                         print(f'\n{color.LIGHT_RED}Escolha uma categoria que esteja disponível na lista{color.END}\n')
@@ -77,7 +77,8 @@ try:
                         funcionarios.executar(select=select, color=color, writer_func=writer)
                     elif categoria == 'produtos':
                         produtos.executar(select=select, color=color, writer_func=writer)
-
+                    elif categoria == 'financas':
+                        financas.executar(select=select, color=color, writer_func=writer)
                     break
 
             elif opcao == 2:
